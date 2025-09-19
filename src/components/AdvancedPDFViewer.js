@@ -144,3 +144,4 @@ const AdvancedPDFViewer = ({ file }) => {
 };
 
 export default AdvancedPDFViewer;
+

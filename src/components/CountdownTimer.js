@@ -10,6 +10,11 @@ const CountdownTimer = ({ expiryDate }) => {
   });
   const [isExpired, setIsExpired] = useState(false);
 
+  // If no expiry date is provided, don't render anything
+  if (!expiryDate) {
+    return null;
+  }
+
   useEffect(() => {
     const calculateTimeLeft = () => {
       const now = new Date().getTime();

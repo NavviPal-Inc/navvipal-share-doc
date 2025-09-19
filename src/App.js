@@ -101,10 +101,12 @@ function App() {
   return (
     <div className="container">
       <div className="document-viewer">
-        {/* Floating Expiry Timer */}
-        <div className="expiry-controls">
-          <CountdownTimer expiryDate={documentData.expiry_date} />
-        </div>
+        {/* Floating Expiry Timer - only show if expiry date exists */}
+        {documentData.expiry_date && (
+          <div className="expiry-controls">
+            <CountdownTimer expiryDate={documentData.expiry_date} />
+          </div>
+        )}
         
         <DocumentViewer 
           documentData={documentData} 

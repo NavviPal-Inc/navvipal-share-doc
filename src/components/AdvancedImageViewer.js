@@ -215,3 +215,4 @@ const AdvancedImageViewer = ({ src, alt = "Document" }) => {
 };
 
 export default AdvancedImageViewer;
+
