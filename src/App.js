@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DocumentViewer from './components/DocumentViewer';
+import CountdownTimer from './components/CountdownTimer';
 import apiService from './services/api';
 import './App.css';
 
@@ -55,31 +56,6 @@ function App() {
     }
   };
 
-  const formatDate = (dateString) => {
-    try {
-      return new Date(dateString).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    } catch {
-      return 'Unknown';
-    }
-  };
-
-  const getFileTypeFromUrl = (url) => {
-    const fileName = url.split('/').pop().toLowerCase();
-    if (fileName.includes('.pdf')) return 'PDF';
-    if (fileName.includes('.jpg') || fileName.includes('.jpeg')) return 'JPEG Image';
-    if (fileName.includes('.png')) return 'PNG Image';
-    if (fileName.includes('.gif')) return 'GIF Image';
-    if (fileName.includes('.csv')) return 'CSV Spreadsheet';
-    if (fileName.includes('.xlsx')) return 'Excel Spreadsheet';
-    if (fileName.includes('.xls')) return 'Excel Spreadsheet';
-    return 'Document';
-  };
 
   if (loading) {
     return (
@@ -125,19 +101,9 @@ function App() {
   return (
     <div className="container">
       <div className="document-viewer">
-        <div className="document-header">
-          <h1>Shared Document</h1>
-          <div className="document-info">
-            <p><strong>File Type:</strong> {getFileTypeFromUrl(documentData.s3_url)}</p>
-            <p><strong>Access Level:</strong> {documentData.access}</p>
-            <p><strong>Expires:</strong> {formatDate(documentData.expiry_date)}</p>
-            {documentData.view_once && (
-              <p><strong>View Policy:</strong> One-time view only</p>
-            )}
-            {documentData.watermark_enabled && (
-              <p><strong>Watermark:</strong> Enabled</p>
-            )}
-          </div>
+        {/* Floating Expiry Timer */}
+        <div className="expiry-controls">
+          <CountdownTimer expiryDate={documentData.expiry_date} />
         </div>
         
         <DocumentViewer 

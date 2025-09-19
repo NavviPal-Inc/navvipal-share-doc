@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
+import AdvancedImageViewer from './AdvancedImageViewer';
+import AdvancedPDFViewer from './AdvancedPDFViewer';
 import apiService from '../services/api';
 
 // Set up PDF.js worker
@@ -12,8 +14,6 @@ const DocumentViewer = ({ documentData, s3Url }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [fileType, setFileType] = useState('');
-  const [numPages, setNumPages] = useState(null);
-  const [pageNumber, setPageNumber] = useState(1);
 
   useEffect(() => {
     loadDocument();
@@ -72,51 +72,16 @@ const DocumentViewer = ({ documentData, s3Url }) => {
     }
   };
 
-  const onDocumentLoadSuccess = ({ numPages }) => {
-    setNumPages(numPages);
-  };
 
   const renderImage = () => (
-    <img 
+    <AdvancedImageViewer 
       src={content} 
-      alt="Document" 
-      className="image-viewer"
-      onError={() => setError('Failed to load image')}
+      alt="Document"
     />
   );
 
   const renderPDF = () => (
-    <div>
-      <Document
-        file={content}
-        onLoadSuccess={onDocumentLoadSuccess}
-        onLoadError={() => setError('Failed to load PDF')}
-        className="pdf-viewer"
-      >
-        <Page pageNumber={pageNumber} />
-      </Document>
-      {numPages > 1 && (
-        <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          <button 
-            onClick={() => setPageNumber(Math.max(1, pageNumber - 1))}
-            disabled={pageNumber <= 1}
-            style={{ marginRight: '10px', padding: '8px 16px' }}
-          >
-            Previous
-          </button>
-          <span style={{ margin: '0 20px' }}>
-            Page {pageNumber} of {numPages}
-          </span>
-          <button 
-            onClick={() => setPageNumber(Math.min(numPages, pageNumber + 1))}
-            disabled={pageNumber >= numPages}
-            style={{ marginLeft: '10px', padding: '8px 16px' }}
-          >
-            Next
-          </button>
-        </div>
-      )}
-    </div>
+    <AdvancedPDFViewer file={content} />
   );
 
   const renderCSV = () => (
