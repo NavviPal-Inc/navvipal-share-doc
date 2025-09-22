@@ -35,13 +35,16 @@ const DocumentViewer = ({ documentData, s3Url }) => {
         detectedType = 'pdf';
       } else if (fileName.includes('.jpg') || fileName.includes('.jpeg') || 
                  fileName.includes('.png') || fileName.includes('.gif') || 
-                 fileName.includes('.webp') || blob.type.startsWith('image/')) {
+                 fileName.includes('.webp') || fileName.includes('.bmp') || 
+                 blob.type.startsWith('image/')) {
         detectedType = 'image';
       } else if (fileName.includes('.csv') || blob.type === 'text/csv') {
         detectedType = 'csv';
       } else if (fileName.includes('.xlsx') || fileName.includes('.xls') || 
                  blob.type.includes('spreadsheet') || blob.type.includes('excel')) {
         detectedType = 'excel';
+      } else if (fileName.includes('.txt') || blob.type === 'text/plain') {
+        detectedType = 'text';
       }
       
       setFileType(detectedType);
@@ -61,6 +64,9 @@ const DocumentViewer = ({ documentData, s3Url }) => {
         const worksheet = workbook.Sheets[sheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
         setContent(jsonData);
+      } else if (detectedType === 'text') {
+        const text = await blob.text();
+        setContent(text);
       } else {
         setContent(url);
       }
@@ -133,11 +139,17 @@ const DocumentViewer = ({ documentData, s3Url }) => {
     </div>
   );
 
+  const renderText = () => (
+    <div className="text-viewer">
+      <pre>{content}</pre>
+    </div>
+  );
+
   const renderUnsupported = () => (
     <div className="unsupported-file">
       <p>This file type is not supported for preview.</p>
       <a 
-        href={content} 
+        href={s3Url} 
         download 
         style={{ 
           display: 'inline-block', 
@@ -184,6 +196,8 @@ const DocumentViewer = ({ documentData, s3Url }) => {
         return renderCSV();
       case 'excel':
         return renderExcel();
+      case 'text':
+        return renderText();
       default:
         return renderUnsupported();
     }
