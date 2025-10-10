@@ -25,6 +25,8 @@ code {
   margin: 0;
   padding: 0;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .loading {
@@ -55,9 +57,49 @@ code {
   line-height: 1.6;
 }
 
+/* Header Styles */
+.app-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 15px 30px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  flex-shrink: 0;
+}
+
+.header-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand-logo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.brand-logo h1 {
+  color: white;
+  font-size: 28px;
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: 1px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.brand-logo .tagline {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
 .document-viewer {
   width: 100%;
-  height: 100%;
+  flex: 1;
   background: rgba(255, 255, 255, 0.95);
   padding: 0;
   box-shadow: none;
@@ -65,6 +107,7 @@ code {
   display: flex;
   flex-direction: column;
   position: relative;
+  overflow: hidden;
 }
 
 .document-content {
@@ -142,12 +185,100 @@ code {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%) rotate(-45deg);
-  font-size: 48px;
-  font-weight: bold;
-  color: rgba(0, 0, 0, 0.1);
+  font-size: 80px;
+  font-weight: 900;
+  color: rgba(102, 126, 234, 0.15);
   pointer-events: none;
   z-index: 10;
   user-select: none;
+  letter-spacing: 8px;
+  text-shadow: 
+    2px 2px 4px rgba(0, 0, 0, 0.1),
+    -2px -2px 4px rgba(255, 255, 255, 0.1);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', sans-serif;
+}
+
+/* Add repeating watermark pattern */
+.watermark::before,
+.watermark::after {
+  content: 'NAVVIPAL';
+  position: absolute;
+  font-size: 80px;
+  font-weight: 900;
+  color: rgba(102, 126, 234, 0.15);
+  letter-spacing: 8px;
+  text-shadow: 
+    2px 2px 4px rgba(0, 0, 0, 0.1),
+    -2px -2px 4px rgba(255, 255, 255, 0.1);
+}
+
+.watermark::before {
+  top: -200px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.watermark::after {
+  top: 200px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Prevent screenshots when enabled */
+.no-screenshots {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.no-screenshots * {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  pointer-events: auto;
+}
+
+.no-screenshots img,
+.no-screenshots canvas {
+  pointer-events: none;
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+}
+
+/* Screenshot protection overlay */
+.screenshot-protection-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.protection-message {
+  text-align: center;
+  color: white;
+}
+
+.protection-message h2 {
+  font-size: 32px;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.protection-message p {
+  font-size: 18px;
+  opacity: 0.9;
 }
 
 .unsupported-file {
@@ -499,8 +630,27 @@ code {
     padding: 0;
   }
   
+  .app-header {
+    padding: 12px 20px;
+  }
+  
+  .brand-logo h1 {
+    font-size: 22px;
+  }
+  
+  .brand-logo .tagline {
+    font-size: 10px;
+  }
+  
   .watermark {
-    font-size: 32px;
+    font-size: 40px;
+    letter-spacing: 4px;
+  }
+  
+  .watermark::before,
+  .watermark::after {
+    font-size: 40px;
+    letter-spacing: 4px;
   }
   
   .countdown-timer {
@@ -509,7 +659,7 @@ code {
   }
   
   .expiry-controls {
-    top: 15px;
+    top: 80px;
     left: 15px;
     padding: 8px 12px;
   }

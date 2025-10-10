@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DocumentViewer from './components/DocumentViewer';
 import CountdownTimer from './components/CountdownTimer';
+import Header from './components/Header';
 import apiService from './services/api';
 import './App.css';
 
@@ -100,6 +101,7 @@ function App() {
 
   return (
     <div className="container">
+      <Header />
       <div className="document-viewer">
         {/* Floating Expiry Timer - only show if expiry date exists */}
         {documentData.expiry_date && (

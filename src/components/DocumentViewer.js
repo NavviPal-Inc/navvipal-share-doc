@@ -14,10 +14,93 @@ const DocumentViewer = ({ documentData, s3Url }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [fileType, setFileType] = useState('');
+  const [contentVisible, setContentVisible] = useState(true);
+  
+  const noDownload = documentData?.no_download || false;
+  const noScreenshots = documentData?.no_screenshots || false;
 
   useEffect(() => {
     loadDocument();
   }, [s3Url]);
+
+  useEffect(() => {
+    if (noScreenshots) {
+      // Prevent right-click context menu
+      const preventContextMenu = (e) => {
+        e.preventDefault();
+        return false;
+      };
+
+      // Detect when user might be taking screenshot - hide content temporarily
+      const handleVisibilityChange = () => {
+        if (document.hidden || !document.hasFocus()) {
+          setContentVisible(false);
+          // Show content again after a delay
+          setTimeout(() => setContentVisible(true), 100);
+        }
+      };
+
+      const handleBlur = () => {
+        setContentVisible(false);
+        setTimeout(() => {
+          if (document.hasFocus()) {
+            setContentVisible(true);
+          }
+        }, 100);
+      };
+
+      const handleFocus = () => {
+        setTimeout(() => setContentVisible(true), 50);
+      };
+
+      // Detect key combinations that might trigger screenshots
+      const handleKeyDown = (e) => {
+        // Detect Cmd+Shift+3/4/5 (Mac) or Win+Shift+S (Windows) or PrtScn
+        if (
+          (e.metaKey && e.shiftKey && ['3', '4', '5'].includes(e.key)) ||
+          (e.key === 's' && e.shiftKey && (e.metaKey || e.ctrlKey)) ||
+          e.key === 'PrintScreen'
+        ) {
+          // Hide content immediately when screenshot key is detected
+          setContentVisible(false);
+          setTimeout(() => setContentVisible(true), 500);
+        }
+        
+        // Prevent dev tools
+        if (
+          e.key === 'F12' ||
+          (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+          (e.ctrlKey && e.shiftKey && e.key === 'J') ||
+          (e.ctrlKey && e.key === 'U')
+        ) {
+          e.preventDefault();
+          return false;
+        }
+      };
+
+      // Monitor mouse leaving window (could indicate screenshot tool selection)
+      const handleMouseLeave = () => {
+        setContentVisible(false);
+        setTimeout(() => setContentVisible(true), 300);
+      };
+
+      document.addEventListener('contextmenu', preventContextMenu);
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+      document.addEventListener('keydown', handleKeyDown);
+      window.addEventListener('blur', handleBlur);
+      window.addEventListener('focus', handleFocus);
+      document.addEventListener('mouseleave', handleMouseLeave);
+
+      return () => {
+        document.removeEventListener('contextmenu', preventContextMenu);
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+        document.removeEventListener('keydown', handleKeyDown);
+        window.removeEventListener('blur', handleBlur);
+        window.removeEventListener('focus', handleFocus);
+        document.removeEventListener('mouseleave', handleMouseLeave);
+      };
+    }
+  }, [noScreenshots]);
 
   const loadDocument = async () => {
     try {
@@ -83,6 +166,7 @@ const DocumentViewer = ({ documentData, s3Url }) => {
     <AdvancedImageViewer 
       src={content} 
       alt="Document"
+      noDownload={noDownload}
     />
   );
 
@@ -148,21 +232,27 @@ const DocumentViewer = ({ documentData, s3Url }) => {
   const renderUnsupported = () => (
     <div className="unsupported-file">
       <p>This file type is not supported for preview.</p>
-      <a 
-        href={s3Url} 
-        download 
-        style={{ 
-          display: 'inline-block', 
-          marginTop: '20px', 
-          padding: '12px 24px', 
-          backgroundColor: '#3498db', 
-          color: 'white', 
-          textDecoration: 'none', 
-          borderRadius: '6px' 
-        }}
-      >
-        Download File
-      </a>
+      {!noDownload ? (
+        <a 
+          href={s3Url} 
+          download 
+          style={{ 
+            display: 'inline-block', 
+            marginTop: '20px', 
+            padding: '12px 24px', 
+            backgroundColor: '#3498db', 
+            color: 'white', 
+            textDecoration: 'none', 
+            borderRadius: '6px' 
+          }}
+        >
+          Download File
+        </a>
+      ) : (
+        <p style={{ marginTop: '20px', color: '#e74c3c', fontWeight: 'bold' }}>
+          Downloads are disabled for this document
+        </p>
+      )}
     </div>
   );
 
@@ -204,10 +294,21 @@ const DocumentViewer = ({ documentData, s3Url }) => {
   };
 
   return (
-    <div className="document-content">
-      {renderContent()}
-      {documentData.watermark_enabled && (
-        <div className="watermark">NAVVIPAL</div>
+    <div className={`document-content ${noScreenshots ? 'no-screenshots' : ''}`}>
+      {noScreenshots && !contentVisible ? (
+        <div className="screenshot-protection-overlay">
+          <div className="protection-message">
+            <h2>🔒 Screenshot Protection Active</h2>
+            <p>Content temporarily hidden</p>
+          </div>
+        </div>
+      ) : (
+        <>
+          {renderContent()}
+          {documentData.watermark && (
+            <div className="watermark">NAVVIPAL</div>
+          )}
+        </>
       )}
     </div>
   );

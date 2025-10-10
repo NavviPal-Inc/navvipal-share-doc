@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 
-const AdvancedImageViewer = ({ src, alt = "Document" }) => {
+const AdvancedImageViewer = ({ src, alt = "Document", noDownload = false }) => {
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -202,6 +202,7 @@ const AdvancedImageViewer = ({ src, alt = "Document" }) => {
           }}
           onLoad={handleImageLoad}
           onError={handleImageError}
+          onContextMenu={noDownload ? (e) => e.preventDefault() : undefined}
           draggable={false}
         />
       </div>
@@ -215,4 +216,7 @@ const AdvancedImageViewer = ({ src, alt = "Document" }) => {
 };
 
 export default AdvancedImageViewer;
+
+
+
 
