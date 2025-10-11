@@ -10,6 +10,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [hasViewed, setHasViewed] = useState(false);
+  const [isExpired, setIsExpired] = useState(false);
 
   // Extract share_id from URL query parameters
   const getShareId = () => {
@@ -23,9 +24,59 @@ function App() {
     return shareIdFromUrl;
   };
 
+  // Check if document has expired
+  const checkIfExpired = (expiryDate) => {
+    if (!expiryDate) {
+      return false; // No expiry date means document doesn't expire
+    }
+
+    try {
+      const expiryDateObj = new Date(expiryDate);
+      const now = new Date();
+      
+      // Parse expiry time properly with timezone handling
+      let expiryTime;
+      if (expiryDate.includes('Z') || expiryDate.includes('+') || expiryDate.includes('T')) {
+        expiryTime = expiryDateObj.getTime();
+      } else {
+        expiryTime = Date.UTC(
+          expiryDateObj.getUTCFullYear(),
+          expiryDateObj.getUTCMonth(),
+          expiryDateObj.getUTCDate(),
+          expiryDateObj.getUTCHours(),
+          expiryDateObj.getUTCMinutes(),
+          expiryDateObj.getUTCSeconds()
+        );
+      }
+      
+      return now.getTime() >= expiryTime;
+    } catch (error) {
+      console.error('Error checking expiry date:', error);
+      return false;
+    }
+  };
+
   useEffect(() => {
     loadDocument();
   }, []);
+
+  // Periodically check if document has expired while viewing
+  useEffect(() => {
+    if (documentData && documentData.expiry_date) {
+      const checkExpiry = () => {
+        if (checkIfExpired(documentData.expiry_date)) {
+          setIsExpired(true);
+          setError('This document has expired and is no longer available.');
+          setDocumentData(null);
+        }
+      };
+
+      // Check every 1 minute (60 seconds)
+      const intervalId = setInterval(checkExpiry, 60000);
+
+      return () => clearInterval(intervalId);
+    }
+  }, [documentData]);
 
   const loadDocument = async () => {
     try {
@@ -41,6 +92,13 @@ function App() {
 
       const shareId = getShareId();
       const data = await apiService.fetchDocumentDetails(shareId);
+      
+      // Check if document has expired
+      if (checkIfExpired(data.expiry_date)) {
+        setIsExpired(true);
+        setError('This document has expired and is no longer available.');
+        return;
+      }
       
       setDocumentData(data);
       
@@ -72,13 +130,28 @@ function App() {
   if (error) {
     return (
       <div className="container">
+        <Header />
         <div className="error">
-          <h2>Unable to Load Document</h2>
-          <p>{error}</p>
-          {!hasViewed && (
-            <button className="retry-button" onClick={loadDocument}>
-              Try Again
-            </button>
+          {isExpired ? (
+            <>
+              <div className="error-icon">⏰</div>
+              <h2>Document Expired</h2>
+              <p>{error}</p>
+              <p className="error-detail">
+                This document is no longer accessible as it has passed its expiration date.
+              </p>
+            </>
+          ) : (
+            <>
+              <div className="error-icon">⚠️</div>
+              <h2>Unable to Load Document</h2>
+              <p>{error}</p>
+              {!hasViewed && !isExpired && (
+                <button className="retry-button" onClick={loadDocument}>
+                  Try Again
+                </button>
+              )}
+            </>
           )}
         </div>
       </div>

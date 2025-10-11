@@ -17,9 +17,48 @@ const CountdownTimer = ({ expiryDate }) => {
 
   useEffect(() => {
     const calculateTimeLeft = () => {
-      const now = new Date().getTime();
-      const expiry = new Date(expiryDate).getTime();
-      const difference = expiry - now;
+      // Get current time in UTC
+      const now = new Date();
+      const nowUTC = Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate(),
+        now.getUTCHours(),
+        now.getUTCMinutes(),
+        now.getUTCSeconds(),
+        now.getUTCMilliseconds()
+      );
+
+      // Parse expiry date - assumes it's in ISO format or UTC
+      let expiryTime;
+      try {
+        const expiryDateObj = new Date(expiryDate);
+        
+        // Check if the date string includes timezone info
+        if (expiryDate.includes('Z') || expiryDate.includes('+') || expiryDate.includes('T')) {
+          // Date string has timezone info, use it directly
+          expiryTime = expiryDateObj.getTime();
+        } else {
+          // Date string doesn't have timezone info, treat as UTC
+          expiryTime = Date.UTC(
+            expiryDateObj.getUTCFullYear(),
+            expiryDateObj.getUTCMonth(),
+            expiryDateObj.getUTCDate(),
+            expiryDateObj.getUTCHours(),
+            expiryDateObj.getUTCMinutes(),
+            expiryDateObj.getUTCSeconds(),
+            expiryDateObj.getUTCMilliseconds()
+          );
+        }
+      } catch (error) {
+        console.error('Invalid expiry date format:', expiryDate, error);
+        setIsExpired(true);
+        return;
+      }
+
+      // Calculate difference using current local time vs expiry time
+      const currentLocalTime = now.getTime();
+      const difference = expiryTime - currentLocalTime;
 
       if (difference > 0) {
         const days = Math.floor(difference / (1000 * 60 * 60 * 24));
