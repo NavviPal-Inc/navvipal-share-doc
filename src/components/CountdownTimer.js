@@ -17,19 +17,10 @@ const CountdownTimer = ({ expiryDate }) => {
 
   useEffect(() => {
     const calculateTimeLeft = () => {
-      // Get current time in UTC
+      // Get current time
       const now = new Date();
-      const nowUTC = Date.UTC(
-        now.getUTCFullYear(),
-        now.getUTCMonth(),
-        now.getUTCDate(),
-        now.getUTCHours(),
-        now.getUTCMinutes(),
-        now.getUTCSeconds(),
-        now.getUTCMilliseconds()
-      );
 
-      // Parse expiry date - assumes it's in ISO format or UTC
+      // Parse expiry date
       let expiryTime;
       try {
         const expiryDateObj = new Date(expiryDate);
@@ -56,7 +47,7 @@ const CountdownTimer = ({ expiryDate }) => {
         return;
       }
 
-      // Calculate difference using current local time vs expiry time
+      // Calculate difference
       const currentLocalTime = now.getTime();
       const difference = expiryTime - currentLocalTime;
 
@@ -99,40 +90,27 @@ const CountdownTimer = ({ expiryDate }) => {
     return value.toString().padStart(2, '0');
   };
 
-  if (isExpired) {
-    return (
-      <span className="countdown-timer expired">
-        EXPIRED
-      </span>
-    );
-  }
+  const getDisplayTime = () => {
+    if (isExpired) {
+      return 'EXPIRED';
+    }
 
-  // Show different formats based on time remaining
-  if (timeLeft.days > 0) {
-    return (
-      <span className="countdown-timer">
-        Expires in {timeLeft.days}d {formatTime(timeLeft.hours)}h {formatTime(timeLeft.minutes)}m
-      </span>
-    );
-  } else if (timeLeft.hours > 0) {
-    return (
-      <span className="countdown-timer">
-        Expires in {formatTime(timeLeft.hours)}h {formatTime(timeLeft.minutes)}m {formatTime(timeLeft.seconds)}s
-      </span>
-    );
-  } else if (timeLeft.minutes > 0) {
-    return (
-      <span className="countdown-timer">
-        Expires in {formatTime(timeLeft.minutes)}m {formatTime(timeLeft.seconds)}s
-      </span>
-    );
-  } else {
-    return (
-      <span className="countdown-timer">
-        Expires in {formatTime(timeLeft.seconds)}s
-      </span>
-    );
-  }
+    // Show different formats based on time remaining
+    if (timeLeft.days > 0) {
+      return `${timeLeft.days}d ${formatTime(timeLeft.hours)}:${formatTime(timeLeft.minutes)}:${formatTime(timeLeft.seconds)}`;
+    } else {
+      return `${formatTime(timeLeft.hours)}:${formatTime(timeLeft.minutes)}:${formatTime(timeLeft.seconds)}`;
+    }
+  };
+
+  return (
+    <div className="countdown-timer-card">
+      <h3>Expires In</h3>
+      <div className={`timer-display ${isExpired ? 'expired' : ''}`}>
+        {getDisplayTime()}
+      </div>
+    </div>
+  );
 };
 
 export default CountdownTimer;

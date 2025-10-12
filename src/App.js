@@ -115,13 +115,39 @@ function App() {
     }
   };
 
+  // Handle document download
+  const handleDownload = async () => {
+    if (!documentData || documentData.no_download) return;
+
+    try {
+      const blob = await apiService.fetchDocumentContent(documentData.s3_url);
+      const url = URL.createObjectURL(blob);
+      
+      // Extract filename from S3 URL
+      const fileName = documentData.s3_url.split('/').pop().split('?')[0];
+      
+      // Create temporary link and trigger download
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = decodeURIComponent(fileName);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up the URL
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Download failed:', err);
+      alert('Failed to download document. Please try again.');
+    }
+  };
 
   if (loading) {
     return (
       <div className="container">
         <div className="loading">
           <div className="spinner"></div>
-          <p>Loading document...</p>
+          <p>Loading your secure document...</p>
         </div>
       </div>
     );
@@ -131,28 +157,36 @@ function App() {
     return (
       <div className="container">
         <Header />
-        <div className="error">
-          {isExpired ? (
-            <>
-              <div className="error-icon">⏰</div>
-              <h2>Document Expired</h2>
-              <p>{error}</p>
-              <p className="error-detail">
-                This document is no longer accessible as it has passed its expiration date.
-              </p>
-            </>
-          ) : (
-            <>
-              <div className="error-icon">⚠️</div>
-              <h2>Unable to Load Document</h2>
-              <p>{error}</p>
-              {!hasViewed && !isExpired && (
-                <button className="retry-button" onClick={loadDocument}>
-                  Try Again
-                </button>
-              )}
-            </>
-          )}
+        <div className="main-content">
+          <div className="error">
+            {isExpired ? (
+              <>
+                <div className="error-icon">⏰</div>
+                <h2>Document Expired</h2>
+                <p>{error}</p>
+                <p className="error-detail">
+                  This document is no longer accessible as it has passed its expiration date.
+                </p>
+              </>
+            ) : hasViewed ? (
+              <>
+                <div className="error-icon">⚠️</div>
+                <h2>Already Viewed</h2>
+                <p>{error}</p>
+              </>
+            ) : (
+              <>
+                <div className="error-icon">⚠️</div>
+                <h2>Unable to Load Document</h2>
+                <p>{error}</p>
+                {!hasViewed && !isExpired && (
+                  <button className="retry-button" onClick={loadDocument}>
+                    Try Again
+                  </button>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -161,12 +195,16 @@ function App() {
   if (!documentData) {
     return (
       <div className="container">
-        <div className="error">
-          <h2>No Document Data</h2>
-          <p>No document information was received from the server.</p>
-          <button className="retry-button" onClick={loadDocument}>
-            Retry
-          </button>
+        <Header />
+        <div className="main-content">
+          <div className="error">
+            <div className="error-icon">⚠️</div>
+            <h2>No Document Data</h2>
+            <p>No document information was received from the server.</p>
+            <button className="retry-button" onClick={loadDocument}>
+              Retry
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -174,19 +212,22 @@ function App() {
 
   return (
     <div className="container">
-      <Header />
-      <div className="document-viewer">
-        {/* Floating Expiry Timer - only show if expiry date exists */}
-        {documentData.expiry_date && (
-          <div className="expiry-controls">
-            <CountdownTimer expiryDate={documentData.expiry_date} />
-          </div>
-        )}
-        
-        <DocumentViewer 
-          documentData={documentData} 
-          s3Url={documentData.s3_url} 
-        />
+      <Header documentData={documentData} onDownload={handleDownload} />
+      
+      <div className="main-content">
+        <div className="document-viewer">
+          {/* Floating Expiry Timer - only show if expiry date exists */}
+          {documentData.expiry_date && (
+            <div className="expiry-controls">
+              <CountdownTimer expiryDate={documentData.expiry_date} />
+            </div>
+          )}
+          
+          <DocumentViewer 
+            documentData={documentData} 
+            s3Url={documentData.s3_url} 
+          />
+        </div>
       </div>
     </div>
   );

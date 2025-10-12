@@ -4,6 +4,8 @@ import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
 import AdvancedImageViewer from './AdvancedImageViewer';
 import AdvancedPDFViewer from './AdvancedPDFViewer';
+import DocumentMetadata from './DocumentMetadata';
+import AppDownloadBanner from './AppDownloadBanner';
 import apiService from '../services/api';
 
 // Set up PDF.js worker
@@ -161,7 +163,6 @@ const DocumentViewer = ({ documentData, s3Url }) => {
     }
   };
 
-
   const renderImage = () => (
     <AdvancedImageViewer 
       src={content} 
@@ -195,7 +196,7 @@ const DocumentViewer = ({ documentData, s3Url }) => {
         </tbody>
       </table>
       {content.length > 100 && (
-        <p style={{ textAlign: 'center', marginTop: '20px', color: '#7f8c8d' }}>
+        <p style={{ textAlign: 'center', marginTop: '20px', color: 'rgba(255, 255, 255, 0.5)' }}>
           Showing first 100 rows of {content.length} total rows
         </p>
       )}
@@ -216,7 +217,7 @@ const DocumentViewer = ({ documentData, s3Url }) => {
         </tbody>
       </table>
       {content.length > 100 && (
-        <p style={{ textAlign: 'center', marginTop: '20px', color: '#7f8c8d' }}>
+        <p style={{ textAlign: 'center', marginTop: '20px', color: 'rgba(255, 255, 255, 0.5)' }}>
           Showing first 100 rows of {content.length} total rows
         </p>
       )}
@@ -236,15 +237,8 @@ const DocumentViewer = ({ documentData, s3Url }) => {
         <a 
           href={s3Url} 
           download 
-          style={{ 
-            display: 'inline-block', 
-            marginTop: '20px', 
-            padding: '12px 24px', 
-            backgroundColor: '#3498db', 
-            color: 'white', 
-            textDecoration: 'none', 
-            borderRadius: '6px' 
-          }}
+          className="download-btn"
+          style={{ marginTop: '20px' }}
         >
           Download File
         </a>
@@ -258,7 +252,12 @@ const DocumentViewer = ({ documentData, s3Url }) => {
 
   const renderContent = () => {
     if (loading) {
-      return <div className="loading">Loading document...</div>;
+      return (
+        <div className="loading">
+          <div className="spinner"></div>
+          <p>Loading document...</p>
+        </div>
+      );
     }
 
     if (error) {
@@ -274,7 +273,11 @@ const DocumentViewer = ({ documentData, s3Url }) => {
     }
 
     if (!content) {
-      return <div className="loading">No content to display</div>;
+      return (
+        <div className="loading">
+          <p>No content to display</p>
+        </div>
+      );
     }
 
     switch (fileType) {
@@ -294,25 +297,33 @@ const DocumentViewer = ({ documentData, s3Url }) => {
   };
 
   return (
-    <div className={`document-content ${noScreenshots ? 'no-screenshots' : ''}`}>
-      {noScreenshots && !contentVisible ? (
-        <div className="screenshot-protection-overlay">
-          <div className="protection-message">
-            <h2>🔒 Screenshot Protection Active</h2>
-            <p>Content temporarily hidden</p>
+    <div className="document-content">
+      {/* Document Metadata Section */}
+      <DocumentMetadata documentData={documentData} />
+
+      {/* Document Body */}
+      <div className={`document-body ${noScreenshots ? 'no-screenshots' : ''}`}>
+        {noScreenshots && !contentVisible ? (
+          <div className="screenshot-protection-overlay">
+            <div className="protection-message">
+              <h2>🔒 Screenshot Protection Active</h2>
+              <p>Content temporarily hidden</p>
+            </div>
           </div>
-        </div>
-      ) : (
-        <>
-          {renderContent()}
-          {documentData.watermark && (
-            <div className="watermark">NAVVIPAL</div>
-          )}
-        </>
-      )}
+        ) : (
+          <>
+            {renderContent()}
+            {documentData.watermark && (
+              <div className="watermark">NAVVIPAL</div>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* App Download Banner */}
+      <AppDownloadBanner />
     </div>
   );
 };
 
 export default DocumentViewer;
-
