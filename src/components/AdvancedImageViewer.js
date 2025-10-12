@@ -149,7 +149,9 @@ const AdvancedImageViewer = ({ src, alt = "Document", noDownload = false }) => {
     return (
       <div className="image-error">
         <p>Failed to load image</p>
-        <button onClick={() => window.location.reload()}>Retry</button>
+        <button className="retry-button" onClick={() => window.location.reload()}>
+          Retry
+        </button>
       </div>
     );
   }
@@ -216,7 +218,3 @@ const AdvancedImageViewer = ({ src, alt = "Document", noDownload = false }) => {
 };
 
 export default AdvancedImageViewer;
-
-
-
-

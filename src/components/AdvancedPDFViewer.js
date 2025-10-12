@@ -56,6 +56,9 @@ const AdvancedPDFViewer = ({ file }) => {
     if (scale !== null) {
       setScale(prev => Math.min(prev + scaleStep, maxScale));
       setPageWidth(null); // Clear width when using scale
+    } else {
+      setScale(1 + scaleStep);
+      setPageWidth(null);
     }
   };
 
@@ -63,6 +66,9 @@ const AdvancedPDFViewer = ({ file }) => {
     if (scale !== null) {
       setScale(prev => Math.max(prev - scaleStep, minScale));
       setPageWidth(null); // Clear width when using scale
+    } else {
+      setScale(1 - scaleStep);
+      setPageWidth(null);
     }
   };
 
@@ -92,11 +98,51 @@ const AdvancedPDFViewer = ({ file }) => {
     }
   };
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.target.tagName === 'INPUT') return; // Don't trigger if typing in input
+
+      switch (e.key) {
+        case 'ArrowLeft':
+          prevPage();
+          break;
+        case 'ArrowRight':
+          nextPage();
+          break;
+        case '+':
+        case '=':
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            zoomIn();
+          }
+          break;
+        case '-':
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            zoomOut();
+          }
+          break;
+        case '0':
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            fitToWidth();
+          }
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [pageNumber, numPages, scale]);
+
   if (error) {
     return (
       <div className="pdf-error">
         <p>{error}</p>
-        <button onClick={() => window.location.reload()}>Retry</button>
+        <button className="retry-button" onClick={() => window.location.reload()}>
+          Retry
+        </button>
       </div>
     );
   }
@@ -115,7 +161,7 @@ const AdvancedPDFViewer = ({ file }) => {
       {!isLoading && numPages && (
         <div className="pdf-controls">
           <div className="page-controls">
-            <button onClick={prevPage} disabled={pageNumber <= 1} title="Previous Page">
+            <button onClick={prevPage} disabled={pageNumber <= 1} title="Previous Page (←)">
               ←
             </button>
             <input
@@ -127,25 +173,33 @@ const AdvancedPDFViewer = ({ file }) => {
               className="page-input"
             />
             <span className="page-info">of {numPages}</span>
-            <button onClick={nextPage} disabled={pageNumber >= numPages} title="Next Page">
+            <button onClick={nextPage} disabled={pageNumber >= numPages} title="Next Page (→)">
               →
             </button>
           </div>
           
           <div className="zoom-controls">
-            <button onClick={zoomOut} disabled={scale !== null && scale <= minScale} title="Zoom Out">
+            <button 
+              onClick={zoomOut} 
+              disabled={scale !== null && scale <= minScale} 
+              title="Zoom Out (Ctrl + -)"
+            >
               −
             </button>
             <span className="zoom-level">
               {scale !== null ? `${Math.round(scale * 100)}%` : 'Fit'}
             </span>
-            <button onClick={zoomIn} disabled={scale !== null && scale >= maxScale} title="Zoom In">
+            <button 
+              onClick={zoomIn} 
+              disabled={scale !== null && scale >= maxScale} 
+              title="Zoom In (Ctrl + +)"
+            >
               +
             </button>
-            <button onClick={resetZoom} title="Reset Zoom">
+            <button onClick={resetZoom} title="Reset Zoom (100%)">
               ⌂
             </button>
-            <button onClick={fitToWidth} title="Fit to Width">
+            <button onClick={fitToWidth} title="Fit to Width (Ctrl + 0)">
               ⇄
             </button>
           </div>
@@ -186,7 +240,7 @@ const AdvancedPDFViewer = ({ file }) => {
       {/* Instructions - show only when loaded */}
       {!isLoading && numPages && (
         <div className="pdf-instructions">
-          <p>📄 Use arrow buttons or type page number • 🔍 Zoom controls • ⌨️ Keyboard shortcuts available</p>
+          <p>📄 Use arrow keys or buttons to navigate • 🔍 Ctrl+/- to zoom • ⌨️ Ctrl+0 to fit width</p>
         </div>
       )}
     </div>
@@ -194,7 +248,3 @@ const AdvancedPDFViewer = ({ file }) => {
 };
 
 export default AdvancedPDFViewer;
-
-
-
-
