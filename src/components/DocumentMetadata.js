@@ -51,14 +51,12 @@ const DocumentMetadata = ({ documentData }) => {
           </span>
         </div>
 
-        {documentData.expiry_date && (
-          <div className="metadata-item">
-            <span className="metadata-label">Expires</span>
-            <span className="metadata-value">
-              {formatExpiryDate(documentData.expiry_date)}
-            </span>
-          </div>
-        )}
+        <div className="metadata-item">
+          <span className="metadata-label">Expires</span>
+          <span className="metadata-value">
+            {documentData.expiry_date ? formatExpiryDate(documentData.expiry_date) : 'Never'}
+          </span>
+        </div>
 
         <div className="metadata-item">
           <span className="metadata-label">Access Type</span>
