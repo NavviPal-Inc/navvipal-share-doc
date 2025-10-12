@@ -1,6 +1,26 @@
 import React from 'react';
 
 const DocumentMetadata = ({ documentData }) => {
+  const cleanDocumentTitle = (rawTitle) => {
+    if (!rawTitle) return 'Shared Document';
+
+    const decodedTitle = decodeURIComponent(rawTitle);
+    const withoutExtension = decodedTitle.replace(/\.[^/.]+$/, '');
+
+    const uuidPatterns = [
+      /[_-\s]*[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/i,
+      /[_-\s]*[0-9a-fA-F]{32}$/i
+    ];
+
+    const strippedTitle = uuidPatterns.reduce(
+      (title, pattern) => title.replace(pattern, ''),
+      withoutExtension
+    );
+
+    const finalTitle = strippedTitle.trim();
+    return finalTitle || withoutExtension.trim() || 'Shared Document';
+  };
+
   const formatExpiryDate = (dateString) => {
     if (!dateString) return 'No expiration';
     
@@ -26,10 +46,10 @@ const DocumentMetadata = ({ documentData }) => {
   };
 
   const getDocumentTitle = () => {
-    if (documentData.document_name) return documentData.document_name;
+    if (documentData.document_name) return cleanDocumentTitle(documentData.document_name);
     if (documentData.s3_url) {
       const fileName = documentData.s3_url.split('/').pop().split('?')[0];
-      return decodeURIComponent(fileName);
+      return cleanDocumentTitle(fileName);
     }
     return 'Shared Document';
   };

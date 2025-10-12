@@ -150,6 +150,8 @@ body {
   position: relative;
   border: 1px solid rgba(160, 0, 255, 0.3);
   box-shadow: 0 20px 60px rgba(160, 0, 255, 0.2);
+  display: flex;
+  flex-direction: column;
 }
 
 /* ==========================================
@@ -166,11 +168,17 @@ body {
 .countdown-timer-card {
   background: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(20px);
-  padding: 16px 24px;
+  padding: 12px 18px;
   border-radius: 16px;
   border: 1px solid rgba(160, 0, 255, 0.5);
   box-shadow: 0 0 40px rgba(160, 0, 255, 0.3);
-  min-width: 180px;
+  min-width: 140px;
+  width: fit-content;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-end;
+  text-align: right;
 }
 
 .countdown-timer-card h3 {
@@ -183,7 +191,7 @@ body {
 }
 
 .timer-display {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 900;
   background: linear-gradient(135deg, #a000ff, #ff2fbc);
   -webkit-background-clip: text;
@@ -203,13 +211,17 @@ body {
    ========================================== */
 
 .document-content {
-  padding: 60px 60px 60px;
+  padding: 96px 60px 48px;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
 }
 
 @media (max-width: 768px) {
   .document-content {
-    padding: 100px 24px 32px;
+    padding: 120px 24px 32px;
+    gap: 32px;
   }
 }
 
@@ -220,13 +232,15 @@ body {
 .document-metadata {
   border-bottom: 1px solid rgba(160, 0, 255, 0.2);
   padding-bottom: 32px;
-  margin-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .document-title {
   font-size: 42px;
   color: #ffffff;
-  margin-bottom: 24px;
+  margin-bottom: 0;
   font-weight: 900;
   line-height: 1.2;
   letter-spacing: -0.5px;
@@ -237,8 +251,8 @@ body {
 .metadata-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 20px;
-  margin-top: 24px;
+  gap: 24px;
+  margin-top: 0;
 }
 
 @media (min-width: 640px) {
@@ -247,7 +261,7 @@ body {
   }
 }
 
-@media (min-width: 1100px) {
+@media (min-width: 1024px) {
   .metadata-grid {
     grid-template-columns: repeat(4, 1fr);
   }
@@ -313,8 +327,11 @@ body {
   line-height: 1.8;
   color: rgba(255, 255, 255, 0.85);
   font-size: 17px;
-  margin-top: 40px;
   min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  position: relative;
 }
 
 .document-body p {
@@ -331,12 +348,13 @@ body {
    ========================================== */
 
 .app-download-banner {
-  margin-top: 60px;
-  padding: 60px 40px;
+  margin: 0;
+  padding: 40px 60px;
   background: linear-gradient(135deg, rgba(160, 0, 255, 0.1), rgba(255, 47, 188, 0.1));
-  border-radius: 24px;
-  border: 1px solid rgba(160, 0, 255, 0.3);
+  border-radius: 0;
+  border-top: 1px solid rgba(160, 0, 255, 0.2);
   text-align: center;
+  width: 100%;
 }
 
 .app-download-banner h3 {
@@ -739,8 +757,10 @@ body {
    ========================================== */
 
 .advanced-pdf-viewer {
-  margin-top: 32px;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .pdf-controls {
@@ -754,7 +774,8 @@ body {
   border-radius: 12px;
   margin-bottom: 20px;
   border: 1px solid rgba(160, 0, 255, 0.3);
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  width: 100%;
 }
 
 .page-controls,
@@ -886,11 +907,39 @@ body {
   }
 
   .document-content {
-    padding: 100px 24px 32px;
+    padding: 120px 24px 32px;
+    gap: 32px;
   }
 
   .document-title {
     font-size: 28px;
+  }
+
+  .countdown-timer-card {
+    padding: 12px 16px;
+    min-width: 0;
+    width: 100%;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .countdown-timer-card h3 {
+    font-size: 8px;
+    margin-bottom: 2px;
+  }
+
+  .timer-display {
+    font-size: 18px;
+  }
+
+  .pdf-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .app-download-banner {
+    padding: 32px 24px;
   }
 
   .app-download-banner h3 {
@@ -901,23 +950,13 @@ body {
     grid-template-columns: 1fr;
   }
 
+  .document-body {
+    gap: 24px;
+  }
+
   .expiry-controls {
-    top: 16px;
-    right: 16px;
-  }
-
-  .countdown-timer-card {
-    padding: 12px 16px;
-    min-width: 140px;
-  }
-
-  .countdown-timer-card h3 {
-    font-size: 8px;
-    margin-bottom: 4px;
-  }
-
-  .timer-display {
-    font-size: 18px;
+    top: 12px;
+    right: 12px;
   }
 
   .download-buttons {

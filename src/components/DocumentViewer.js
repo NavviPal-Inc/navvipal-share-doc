@@ -297,32 +297,31 @@ const DocumentViewer = ({ documentData, s3Url }) => {
   };
 
   return (
-    <div className="document-content">
-      {/* Document Metadata Section */}
-      <DocumentMetadata documentData={documentData} />
+    <>
+      <section className="document-content">
+        <DocumentMetadata documentData={documentData} />
 
-      {/* Document Body */}
-      <div className={`document-body ${noScreenshots ? 'no-screenshots' : ''}`}>
-        {noScreenshots && !contentVisible ? (
-          <div className="screenshot-protection-overlay">
-            <div className="protection-message">
-              <h2>🔒 Screenshot Protection Active</h2>
-              <p>Content temporarily hidden</p>
+        <div className={`document-body ${noScreenshots ? 'no-screenshots' : ''}`}>
+          {noScreenshots && !contentVisible ? (
+            <div className="screenshot-protection-overlay">
+              <div className="protection-message">
+                <h2>🔒 Screenshot Protection Active</h2>
+                <p>Content temporarily hidden</p>
+              </div>
             </div>
-          </div>
-        ) : (
-          <>
-            {renderContent()}
-            {documentData.watermark && (
-              <div className="watermark">NAVVIPAL</div>
-            )}
-          </>
-        )}
-      </div>
+          ) : (
+            <>
+              {renderContent()}
+              {documentData.watermark && (
+                <div className="watermark">NAVVIPAL</div>
+              )}
+            </>
+          )}
+        </div>
+      </section>
 
-      {/* App Download Banner */}
       <AppDownloadBanner />
-    </div>
+    </>
   );
 };
 
