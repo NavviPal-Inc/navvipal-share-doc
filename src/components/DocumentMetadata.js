@@ -1,7 +1,6 @@
 import React from 'react';
 
 const DocumentMetadata = ({ documentData }) => {
-  // Format the expiry date for display
   const formatExpiryDate = (dateString) => {
     if (!dateString) return 'No expiration';
     
@@ -20,14 +19,12 @@ const DocumentMetadata = ({ documentData }) => {
     }
   };
 
-  // Generate a document ID if not provided
   const getDocumentId = () => {
     if (documentData.document_id) return documentData.document_id;
     if (documentData.share_id) return `DOC-${documentData.share_id.substring(0, 8).toUpperCase()}`;
     return 'N/A';
   };
 
-  // Get the document title
   const getDocumentTitle = () => {
     if (documentData.document_name) return documentData.document_name;
     if (documentData.s3_url) {
@@ -43,21 +40,6 @@ const DocumentMetadata = ({ documentData }) => {
       
       <div className="metadata-grid">
         <div className="metadata-item">
-          <span className="metadata-label">Access Type</span>
-          <span className="metadata-value">
-            {documentData.view_once ? (
-              <span className="badge badge-warning">View Once</span>
-            ) : (
-              <span className="badge badge-info">Multiple Views</span>
-            )}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default DocumentMetadata;-item">
           <span className="metadata-label">Document ID</span>
           <span className="metadata-value">{getDocumentId()}</span>
         </div>
@@ -78,4 +60,19 @@ export default DocumentMetadata;-item">
           </div>
         )}
 
-        <div className="metadata
+        <div className="metadata-item">
+          <span className="metadata-label">Access Type</span>
+          <span className="metadata-value">
+            {documentData.view_once ? (
+              <span className="badge badge-warning">View Once</span>
+            ) : (
+              <span className="badge badge-info">Multiple Views</span>
+            )}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default DocumentMetadata;
