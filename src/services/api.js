@@ -1,13 +1,37 @@
 import axios from 'axios';
 
 const API_BASE_URL = 'https://doc-service.navvipal.com';
+const USE_MOCK_DATA = String(process.env.REACT_APP_USE_MOCK_DATA).toLowerCase() === 'true';
+
+const getMockDocumentDetails = (shareId) => {
+  return {
+    document_id: 'MOCK-DOC-001',
+    share_id: shareId || 'mock-share-id',
+    document_name: 'mock.pdf',
+    s3_url: '/mock.pdf',
+    shared_by: 'NavviPal Demo',
+    expiry_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    view_once: false,
+    no_download: false,
+    no_screenshots: false
+  };
+};
 
 class ApiService {
   constructor() {
     this.viewedOnce = false;
+    this.mockMode = USE_MOCK_DATA;
+  }
+
+  isMockMode() {
+    return this.mockMode;
   }
 
   async fetchDocumentDetails(shareId) {
+    if (this.mockMode) {
+      return getMockDocumentDetails(shareId);
+    }
+
     try {
       const response = await axios.get(`${API_BASE_URL}/documents/shared`, {
         params: { share_id: shareId },
@@ -30,9 +54,9 @@ class ApiService {
 
   async fetchDocumentContent(s3Url) {
     try {
-      const response = await axios.get(s3Url, {
+      const response = await axios.get(this.mockMode ? '/mock.pdf' : s3Url, {
         responseType: 'blob',
-        timeout: 30000
+        timeout: this.mockMode ? 5000 : 30000
       });
       
       return response.data;
@@ -46,9 +70,12 @@ class ApiService {
   }
 
   hasBeenViewed() {
+    if (this.mockMode) {
+      return false;
+    }
+
     return this.viewedOnce;
   }
 }
 
 export default new ApiService();
-

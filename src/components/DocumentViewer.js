@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
-import AdvancedImageViewer from './AdvancedImageViewer';
 import AdvancedPDFViewer from './AdvancedPDFViewer';
+import AdvancedImageViewer from './AdvancedImageViewer';
 import DocumentMetadata from './DocumentMetadata';
-import AppDownloadBanner from './AppDownloadBanner';
+import CountdownTimer from './CountdownTimer';
 import apiService from '../services/api';
 
 // Set up PDF.js worker
@@ -17,6 +17,7 @@ const DocumentViewer = ({ documentData, s3Url }) => {
   const [error, setError] = useState(null);
   const [fileType, setFileType] = useState('');
   const [contentVisible, setContentVisible] = useState(true);
+  const [pdfControls, setPdfControls] = useState(null);
   
   const noDownload = documentData?.no_download || false;
   const noScreenshots = documentData?.no_screenshots || false;
@@ -24,6 +25,12 @@ const DocumentViewer = ({ documentData, s3Url }) => {
   useEffect(() => {
     loadDocument();
   }, [s3Url]);
+
+  useEffect(() => {
+    if (fileType !== 'pdf') {
+      setPdfControls(null);
+    }
+  }, [fileType]);
 
   useEffect(() => {
     if (noScreenshots) {
@@ -108,6 +115,7 @@ const DocumentViewer = ({ documentData, s3Url }) => {
     try {
       setLoading(true);
       setError(null);
+      setPdfControls(null);
       
       const blob = await apiService.fetchDocumentContent(s3Url);
       const url = URL.createObjectURL(blob);
@@ -172,7 +180,7 @@ const DocumentViewer = ({ documentData, s3Url }) => {
   );
 
   const renderPDF = () => (
-    <AdvancedPDFViewer file={content} />
+    <AdvancedPDFViewer file={content} onControlsRender={setPdfControls} />
   );
 
   const renderCSV = () => (
@@ -297,31 +305,41 @@ const DocumentViewer = ({ documentData, s3Url }) => {
   };
 
   return (
-    <>
-      <section className="document-content">
-        <DocumentMetadata documentData={documentData} />
-
-        <div className={`document-body ${noScreenshots ? 'no-screenshots' : ''}`}>
-          {noScreenshots && !contentVisible ? (
-            <div className="screenshot-protection-overlay">
-              <div className="protection-message">
-                <h2>🔒 Screenshot Protection Active</h2>
-                <p>Content temporarily hidden</p>
-              </div>
-            </div>
-          ) : (
-            <>
-              {renderContent()}
-              {documentData.watermark && (
-                <div className="watermark">NAVVIPAL</div>
-              )}
-            </>
-          )}
+    <section className="document-content">
+      {documentData && (
+        <div className="document-metadata-wrapper inside-viewer">
+          <DocumentMetadata documentData={documentData}>
+            {documentData.expiry_date && (
+              <CountdownTimer expiryDate={documentData.expiry_date} />
+            )}
+          </DocumentMetadata>
         </div>
-      </section>
+      )}
 
-      <AppDownloadBanner />
-    </>
+      {pdfControls && (
+        <div className="pdf-controls-wrapper inside-viewer">
+          {pdfControls}
+        </div>
+      )}
+
+      <div className={`document-body ${noScreenshots ? 'no-screenshots' : ''}`}>
+        {noScreenshots && !contentVisible ? (
+          <div className="screenshot-protection-overlay">
+            <div className="protection-message">
+              <h2>🔒 Screenshot Protection Active</h2>
+              <p>Content temporarily hidden</p>
+            </div>
+          </div>
+        ) : (
+          <>
+            {renderContent()}
+            {documentData.watermark && (
+              <div className="watermark">NAVVIPAL</div>
+            )}
+          </>
+        )}
+      </div>
+    </section>
   );
 };
 

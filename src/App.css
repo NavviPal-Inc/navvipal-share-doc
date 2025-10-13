@@ -26,10 +26,13 @@ body {
    ========================================== */
 
 .container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0;
+  width: 100%;
+  margin: 0;
+  padding: 0 0 96px;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* ==========================================
@@ -43,6 +46,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 1000;
+  width: 100%;
 }
 
 .header-content {
@@ -130,31 +134,24 @@ body {
 }
 
 /* ==========================================
-   MAIN CONTENT AREA
-   ========================================== */
-
-.main-content {
-  padding: 48px 40px 72px;
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-}
-
-/* ==========================================
    DOCUMENT VIEWER CARD
    ========================================== */
 
 .document-viewer {
-  background: linear-gradient(180deg, #0e0015 0%, #130425 100%);
-  border-radius: 24px;
+  width: 100%;
+  max-width: 1040px;
+  margin: 72px auto 48px;
+  padding: 64px 56px 56px;
+  background: radial-gradient(120% 120% at 50% 0%, rgba(146, 0, 255, 0.28) 0%, rgba(26, 0, 46, 0.88) 48%, rgba(8, 0, 16, 0.94) 100%);
+  border-radius: 36px;
   overflow: visible;
   position: relative;
-  border: 1px solid rgba(160, 0, 255, 0.3);
-  box-shadow: 0 20px 60px rgba(160, 0, 255, 0.2);
+  border: 1px solid rgba(160, 0, 255, 0.35);
+  box-shadow: 0 40px 120px rgba(160, 0, 255, 0.25);
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 160px);
+  gap: 48px;
+  backdrop-filter: blur(30px);
 }
 
 /* ==========================================
@@ -163,38 +160,37 @@ body {
 
 .expiry-controls {
   position: absolute;
-  top: 24px;
-  right: 24px;
-  z-index: 10;
+  top: 80px;
+  right: 56px;
+  z-index: 20;
 }
 
 .countdown-timer-card {
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(20px);
-  padding: 12px 18px;
-  border-radius: 16px;
-  border: 1px solid rgba(160, 0, 255, 0.5);
-  box-shadow: 0 0 40px rgba(160, 0, 255, 0.3);
-  min-width: 140px;
+  background: rgba(18, 0, 36, 0.9);
+  backdrop-filter: blur(22px);
+  padding: 14px 22px;
+  border-radius: 18px;
+  border: 1px solid rgba(160, 0, 255, 0.55);
+  box-shadow: 0 0 40px rgba(160, 0, 255, 0.35);
+  min-width: 160px;
   width: fit-content;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   align-items: flex-end;
   text-align: right;
 }
 
 .countdown-timer-card h3 {
-  font-size: 9px;
+  font-size: 10px;
   color: #a000ff;
-  margin-bottom: 6px;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
+  letter-spacing: 1.4px;
   font-weight: 700;
 }
 
 .timer-display {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 900;
   background: linear-gradient(135deg, #a000ff, #ff2fbc);
   -webkit-background-clip: text;
@@ -213,75 +209,138 @@ body {
    DOCUMENT CONTENT
    ========================================== */
 
-.document-content {
-  padding: 80px 48px 40px;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-  flex: 1 1 auto;
-}
 
-@media (max-width: 768px) {
-  .document-content {
-    padding: 96px 24px 32px;
-    gap: 24px;
-  }
-}
 
 /* ==========================================
    DOCUMENT METADATA
    ========================================== */
 
-.document-metadata {
-  border-bottom: 1px solid rgba(160, 0, 255, 0.2);
-  padding-bottom: 24px;
+.document-metadata-wrapper {
+  width: 100%;
+  max-width: 1040px;
+  margin: 48px auto 24px;
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.document-content {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  flex: 1;
+  justify-content: flex-start;
+  align-items: stretch;
+}
+
+.document-metadata-wrapper.inside-viewer {
+  max-width: 100%;
+  margin: 0 0 24px;
+  padding: 0;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.expiry-controls.inline {
+  position: static;
+  top: auto;
+  right: auto;
+}
+
+.document-metadata-wrapper.inside-viewer .expiry-controls.inline {
+  margin-left: auto;
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+.document-metadata {
+  flex: 1 1 520px;
+  max-width: 940px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
 }
 
 .document-title {
-  font-size: 32px;
+  font-size: 28px;
   color: #ffffff;
-  margin-bottom: 0;
+  margin: 0;
   font-weight: 900;
-  line-height: 1.2;
-  letter-spacing: -0.5px;
+  line-height: 1.1;
+  letter-spacing: -1px;
   word-break: break-word;
   overflow-wrap: break-word;
+  text-align: left;
 }
 
 .metadata-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 16px;
-  margin-top: 0;
+  gap: 12px;
 }
 
 .metadata-item {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 16px;
-  background: rgba(160, 0, 255, 0.05);
-  border-radius: 12px;
-  border: 1px solid rgba(160, 0, 255, 0.2);
+  gap: 8px;
+  padding: 14px 16px;
+  background: rgba(29, 0, 50, 0.7);
+  border-radius: 14px;
+  border: 1px solid rgba(160, 0, 255, 0.28);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
   min-height: 0;
+  backdrop-filter: blur(18px);
+}
+
+.metadata-grid .countdown-timer-card {
+  width: 100%;
+  min-width: 0;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(18, 0, 36, 0.9);
+  border: 1px solid rgba(160, 0, 255, 0.28);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(18px);
+  gap: 8px;
+  align-items: flex-end;
+  text-align: right;
 }
 
 .metadata-label {
-  font-size: 10px;
-  color: #a000ff;
+  font-size: 9px;
+  color: rgba(198, 147, 255, 0.9);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.2px;
   font-weight: 700;
 }
 
 .metadata-value {
   font-size: 14px;
   color: #ffffff;
-  font-weight: 500;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.metadata-badge {
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-size: 10px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.pdf-controls-wrapper.inside-viewer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: 16px 0 24px;
 }
 
 /* ==========================================
@@ -305,9 +364,9 @@ body {
 }
 
 .badge-info {
-  background: rgba(52, 152, 219, 0.15);
-  color: #5dade2;
-  border: 1px solid rgba(52, 152, 219, 0.3);
+  background: linear-gradient(135deg, rgba(120, 80, 255, 0.25), rgba(160, 0, 255, 0.55));
+  color: #ffffff;
+  border: 1px solid rgba(160, 0, 255, 0.45);
 }
 
 /* ==========================================
@@ -318,12 +377,11 @@ body {
   line-height: 1.8;
   color: rgba(255, 255, 255, 0.85);
   font-size: 17px;
-  min-height: 400px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 32px;
   position: relative;
-  flex: 1 1 auto;
+  flex: 1;
   min-height: 0;
 }
 
@@ -341,27 +399,29 @@ body {
    ========================================== */
 
 .app-download-banner {
-  margin: 0;
-  padding: 48px 60px;
+  margin: 48px auto 0;
+  max-width: 1040px;
+  padding: 24px 60px;
   background: linear-gradient(135deg, rgba(160, 0, 255, 0.1), rgba(255, 47, 188, 0.1));
   border-radius: 0;
   border-top: 1px solid rgba(160, 0, 255, 0.2);
   text-align: center;
   width: 100%;
+  flex-shrink: 0;
 }
 
 .app-download-banner h3 {
-  font-size: 36px;
+  font-size: 24px;
   font-weight: 900;
   color: #ffffff;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   letter-spacing: -0.5px;
 }
 
 .app-download-banner p {
   color: rgba(255, 255, 255, 0.7);
-  font-size: 18px;
-  margin-bottom: 32px;
+  font-size: 16px;
+  margin-bottom: 16px;
   font-weight: 400;
   max-width: 600px;
   margin-left: auto;
@@ -715,15 +775,15 @@ body {
 .image-container {
   position: relative;
   width: 100%;
-  min-height: clamp(320px, 70vh, 840px);
-  max-height: 80vh;
-  background: rgba(0, 0, 0, 0.5);
-  border-radius: 16px;
-  border: 1px solid rgba(160, 0, 255, 0.3);
-  overflow: hidden;
+  min-height: clamp(420px, 62vh, 820px);
+  background: rgba(8, 0, 18, 0.92);
+  border-radius: 24px;
+  border: 1px solid rgba(160, 0, 255, 0.35);
+  overflow: auto;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 32px;
 }
 
 .viewer-image {
@@ -741,9 +801,10 @@ body {
 
 .viewer-instructions {
   text-align: center;
-  margin-top: 16px;
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 14px;
+  margin-top: 20px;
+  color: rgba(198, 147, 255, 0.65);
+  font-size: 13px;
+  letter-spacing: 0.4px;
 }
 
 /* ==========================================
@@ -754,8 +815,8 @@ body {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  flex: 1 1 auto;
+  gap: 24px;
+  flex: 1;
   min-height: 0;
 }
 
@@ -764,14 +825,14 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 16px 24px;
-  background: rgba(0, 0, 0, 0.8);
+  padding: 18px 28px;
+  background: rgba(18, 0, 36, 0.9);
   backdrop-filter: blur(20px);
-  border-radius: 12px;
-  margin-bottom: 0;
-  border: 1px solid rgba(160, 0, 255, 0.3);
+  border-radius: 18px;
+  border: 1px solid rgba(160, 0, 255, 0.32);
   flex-wrap: nowrap;
   width: 100%;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
 .page-controls,
@@ -825,14 +886,14 @@ body {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  flex: 1 1 auto;
-  min-height: clamp(360px, 70vh, 920px);
-  max-height: 80vh;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 16px;
+  flex: 1;
+  min-height: clamp(420px, 62vh, 780px);
+  background: rgba(9, 0, 20, 0.92);
+  border-radius: 24px;
   border: 1px solid rgba(160, 0, 255, 0.3);
-  padding: 20px;
+  padding: 28px;
   overflow: auto;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
 }
 
 .pdf-document {
@@ -901,21 +962,43 @@ body {
     height: 16px;
   }
 
-  .main-content {
-    padding: 40px 20px 56px;
+  .document-viewer {
+    margin: 48px auto 32px;
+    padding: 48px 28px 36px;
+    gap: 32px;
   }
 
-  .document-viewer {
-    min-height: auto;
+  .document-metadata {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    gap: 16px;
+  }
+
+  .document-metadata-wrapper {
+    padding: 0;
+    gap: 16px;
+    align-items: flex-start;
+    margin: 0 0 24px;
+  }
+
+  .document-metadata-wrapper.inside-viewer {
+    margin: 0 0 24px;
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .document-content {
-    padding: 100px 24px 32px;
-    gap: 24px;
+    gap: 28px;
+  }
+
+  .document-metadata-wrapper.inside-viewer .expiry-controls.inline {
+    margin-left: 0;
+    width: 100%;
   }
 
   .document-title {
-    font-size: 28px;
+    font-size: 32px;
   }
 
   .metadata-grid {
@@ -923,9 +1006,15 @@ body {
   }
 
   .countdown-timer-card {
-    padding: 12px 16px;
+    padding: 12px 18px;
     min-width: 0;
     width: 100%;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .metadata-grid .countdown-timer-card {
+    padding: 12px 18px;
     align-items: flex-start;
     text-align: left;
   }
@@ -940,17 +1029,25 @@ body {
   }
 
   .document-body {
-    gap: 24px;
+    gap: 26px;
+  }
+
+  .pdf-controls-wrapper,
+  .pdf-controls-wrapper.inside-viewer {
+    padding: 0;
+    margin: 12px 0 16px;
+    width: 100%;
   }
 
   .advanced-pdf-viewer {
-    gap: 16px;
+    gap: 20px;
   }
 
   .pdf-controls {
     flex-direction: column;
     align-items: stretch;
     gap: 16px;
+    padding: 18px 20px;
   }
 
   .page-controls,
@@ -961,16 +1058,17 @@ body {
 
   .pdf-container,
   .image-container {
-    min-height: clamp(280px, 60vh, 720px);
-    max-height: none;
+    min-height: clamp(320px, 55vh, 640px);
+    padding: 22px;
   }
 
   .app-download-banner {
-    padding: 32px 24px;
+    padding: 16px 24px;
+    margin-top: 32px;
   }
 
   .app-download-banner h3 {
-    font-size: 28px;
+    font-size: 22px;
   }
 
   .download-buttons {
@@ -985,8 +1083,8 @@ body {
   }
 
   .expiry-controls {
-    top: 12px;
-    right: 12px;
+    top: 20px;
+    right: 20px;
   }
 
   .watermark {
@@ -1006,20 +1104,60 @@ body {
     justify-content: center;
   }
 
+  .document-viewer {
+    margin: 40px auto 28px;
+    padding: 36px 22px 28px;
+    gap: 28px;
+  }
+
+  .document-metadata {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    gap: 14px;
+  }
+
+  .document-metadata-wrapper {
+    padding: 0;
+    gap: 14px;
+    align-items: flex-start;
+    flex-direction: column;
+    margin: 0 0 20px;
+  }
+
+  .document-metadata-wrapper.inside-viewer {
+    margin: 0 0 20px;
+  }
+
+  .document-metadata-wrapper.inside-viewer .expiry-controls.inline {
+    width: 100%;
+  }
+
+  .pdf-controls-wrapper {
+    padding: 0;
+    margin: 10px auto 14px;
+    width: 100%;
+  }
+
+  .pdf-controls-wrapper.inside-viewer {
+    margin: 10px 0 14px;
+  }
+
   .document-title {
     font-size: 24px;
   }
 
   .app-download-banner {
-    padding: 40px 24px;
+    padding: 20px 24px;
+    margin-top: 28px;
   }
 
   .app-download-banner h3 {
-    font-size: 24px;
+    font-size: 20px;
   }
 
   .app-download-banner p {
-    font-size: 16px;
+    font-size: 14px;
   }
 }
 

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
@@ -6,7 +6,7 @@ import 'react-pdf/dist/esm/Page/TextLayer.css';
 // Set up PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
-const AdvancedPDFViewer = ({ file }) => {
+const AdvancedPDFViewer = ({ file, onControlsRender }) => {
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [scale, setScale] = useState(null);
@@ -27,12 +27,12 @@ const AdvancedPDFViewer = ({ file }) => {
     calculateFitToWidth();
   };
 
-  const calculateFitToWidth = () => {
+  const calculateFitToWidth = useCallback(() => {
     if (containerRef.current) {
       const containerWidth = containerRef.current.clientWidth - 40; // Account for padding
       setPageWidth(containerWidth);
     }
-  };
+  }, []);
 
   // Recalculate on window resize
   useEffect(() => {
@@ -44,7 +44,7 @@ const AdvancedPDFViewer = ({ file }) => {
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [isLoading]);
+  }, [isLoading, calculateFitToWidth]);
 
   const onDocumentLoadError = (error) => {
     console.error('PDF Load Error:', error);
@@ -52,51 +52,46 @@ const AdvancedPDFViewer = ({ file }) => {
     setIsLoading(false);
   };
 
-  const zoomIn = () => {
-    if (scale !== null) {
-      setScale(prev => Math.min(prev + scaleStep, maxScale));
-      setPageWidth(null); // Clear width when using scale
-    } else {
-      setScale(1 + scaleStep);
-      setPageWidth(null);
-    }
-  };
+  const zoomIn = useCallback(() => {
+    setScale(prev => {
+      const current = prev ?? 1;
+      return Math.min(current + scaleStep, maxScale);
+    });
+    setPageWidth(null);
+  }, [maxScale]);
 
-  const zoomOut = () => {
-    if (scale !== null) {
-      setScale(prev => Math.max(prev - scaleStep, minScale));
-      setPageWidth(null); // Clear width when using scale
-    } else {
-      setScale(1 - scaleStep);
-      setPageWidth(null);
-    }
-  };
+  const zoomOut = useCallback(() => {
+    setScale(prev => {
+      const current = prev ?? 1;
+      return Math.max(current - scaleStep, minScale);
+    });
+    setPageWidth(null);
+  }, [minScale]);
 
-  const resetZoom = () => {
+  const resetZoom = useCallback(() => {
     setScale(1);
     setPageWidth(null);
-  };
+  }, []);
 
-  const fitToWidth = () => {
-    setScale(null); // Clear scale to use width
+  const fitToWidth = useCallback(() => {
+    setScale(null);
     calculateFitToWidth();
-  };
+  }, [calculateFitToWidth]);
 
-  const goToPage = (page) => {
-    setPageNumber(Math.max(1, Math.min(page, numPages)));
-  };
+  const goToPage = useCallback((page) => {
+    setPageNumber(prev => {
+      const target = Math.max(1, Math.min(page, numPages));
+      return isNaN(target) ? prev : target;
+    });
+  }, [numPages]);
 
-  const nextPage = () => {
-    if (pageNumber < numPages) {
-      setPageNumber(pageNumber + 1);
-    }
-  };
+  const nextPage = useCallback(() => {
+    setPageNumber(prev => Math.min(prev + 1, numPages));
+  }, [numPages]);
 
-  const prevPage = () => {
-    if (pageNumber > 1) {
-      setPageNumber(pageNumber - 1);
-    }
-  };
+  const prevPage = useCallback(() => {
+    setPageNumber(prev => Math.max(prev - 1, 1));
+  }, []);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -134,7 +129,7 @@ const AdvancedPDFViewer = ({ file }) => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [pageNumber, numPages, scale]);
+  }, [pageNumber, numPages, scale, prevPage, nextPage, zoomIn, zoomOut, fitToWidth]);
 
   if (error) {
     return (
@@ -147,6 +142,81 @@ const AdvancedPDFViewer = ({ file }) => {
     );
   }
 
+  const controls = useMemo(() => {
+    if (isLoading || !numPages) {
+      return null;
+    }
+
+    return (
+      <div className="pdf-controls">
+        <div className="page-controls">
+          <button onClick={prevPage} disabled={pageNumber <= 1} title="Previous Page (←)">
+            ←
+          </button>
+          <input
+            type="number"
+            value={pageNumber}
+            onChange={(e) => goToPage(parseInt(e.target.value) || 1)}
+            min={1}
+            max={numPages}
+            className="page-input"
+          />
+          <span className="page-info">of {numPages}</span>
+          <button onClick={nextPage} disabled={pageNumber >= numPages} title="Next Page (→)">
+            →
+          </button>
+        </div>
+
+        <div className="zoom-controls">
+          <button
+            onClick={zoomOut}
+            disabled={scale !== null && scale <= minScale}
+            title="Zoom Out (Ctrl + -)"
+          >
+            −
+          </button>
+          <span className="zoom-level">
+            {scale !== null ? `${Math.round(scale * 100)}%` : 'Fit'}
+          </span>
+          <button
+            onClick={zoomIn}
+            disabled={scale !== null && scale >= maxScale}
+            title="Zoom In (Ctrl + +)"
+          >
+            +
+          </button>
+          <button onClick={resetZoom} title="Reset Zoom (100%)">
+            ⌂
+          </button>
+          <button onClick={fitToWidth} title="Fit to Width (Ctrl + 0)">
+            ⇄
+          </button>
+        </div>
+      </div>
+    );
+  }, [
+    isLoading,
+    numPages,
+    pageNumber,
+    scale,
+    prevPage,
+    nextPage,
+    goToPage,
+    zoomOut,
+    zoomIn,
+    resetZoom,
+    fitToWidth,
+    minScale,
+    maxScale
+  ]);
+
+  useEffect(() => {
+    if (onControlsRender) {
+      onControlsRender(controls);
+      return () => onControlsRender(null);
+    }
+  }, [controls, onControlsRender]);
+
   return (
     <div className="advanced-pdf-viewer">
       {/* Loading Overlay */}
@@ -158,53 +228,7 @@ const AdvancedPDFViewer = ({ file }) => {
       )}
 
       {/* Controls - show only when loaded */}
-      {!isLoading && numPages && (
-        <div className="pdf-controls">
-          <div className="page-controls">
-            <button onClick={prevPage} disabled={pageNumber <= 1} title="Previous Page (←)">
-              ←
-            </button>
-            <input
-              type="number"
-              value={pageNumber}
-              onChange={(e) => goToPage(parseInt(e.target.value) || 1)}
-              min={1}
-              max={numPages}
-              className="page-input"
-            />
-            <span className="page-info">of {numPages}</span>
-            <button onClick={nextPage} disabled={pageNumber >= numPages} title="Next Page (→)">
-              →
-            </button>
-          </div>
-          
-          <div className="zoom-controls">
-            <button 
-              onClick={zoomOut} 
-              disabled={scale !== null && scale <= minScale} 
-              title="Zoom Out (Ctrl + -)"
-            >
-              −
-            </button>
-            <span className="zoom-level">
-              {scale !== null ? `${Math.round(scale * 100)}%` : 'Fit'}
-            </span>
-            <button 
-              onClick={zoomIn} 
-              disabled={scale !== null && scale >= maxScale} 
-              title="Zoom In (Ctrl + +)"
-            >
-              +
-            </button>
-            <button onClick={resetZoom} title="Reset Zoom (100%)">
-              ⌂
-            </button>
-            <button onClick={fitToWidth} title="Fit to Width (Ctrl + 0)">
-              ⇄
-            </button>
-          </div>
-        </div>
-      )}
+      {!onControlsRender && controls}
 
       {/* PDF Container */}
       <div ref={containerRef} className="pdf-container">
@@ -237,12 +261,12 @@ const AdvancedPDFViewer = ({ file }) => {
         </Document>
       </div>
 
-      {/* Instructions - show only when loaded */}
+      {/* Instructions - show only when loaded
       {!isLoading && numPages && (
         <div className="pdf-instructions">
           <p>📄 Use arrow keys or buttons to navigate • 🔍 Ctrl+/- to zoom • ⌨️ Ctrl+0 to fit width</p>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

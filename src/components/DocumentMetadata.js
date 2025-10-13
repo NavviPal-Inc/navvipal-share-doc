@@ -1,95 +1,81 @@
 import React from 'react';
 
-const DocumentMetadata = ({ documentData }) => {
+const DocumentMetadata = ({ documentData, children }) => {
   const cleanDocumentTitle = (rawTitle) => {
-    if (!rawTitle) return 'Shared Document';
+    if (!rawTitle) return 'Document.pdf';
 
     const decodedTitle = decodeURIComponent(rawTitle);
-    const withoutExtension = decodedTitle.replace(/\.[^/.]+$/, '');
+    const sanitized = decodedTitle.split('?')[0];
+    const fileSegment = sanitized.split('/').pop();
+    const withoutExtension = fileSegment.replace(/\.[^/.]+$/, '');
 
-    const uuidPatterns = [
-      /[_-\s]*[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/i,
-      /[_-\s]*[0-9a-fA-F]{32}$/i
-    ];
-
-    const strippedTitle = uuidPatterns.reduce(
-      (title, pattern) => title.replace(pattern, ''),
-      withoutExtension
-    );
-
-    const finalTitle = strippedTitle.trim();
-    return finalTitle || withoutExtension.trim() || 'Shared Document';
+    return withoutExtension.trim() || 'Document.pdf';
   };
 
   const formatExpiryDate = (dateString) => {
-    if (!dateString) return 'No expiration';
-    
+    if (!dateString) return 'Never';
+
     try {
       const date = new Date(dateString);
-      const options = { 
-        year: 'numeric', 
-        month: 'short', 
+      return date.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit'
-      };
-      return date.toLocaleDateString('en-US', options);
+      });
     } catch (error) {
-      return 'Invalid date';
+      return 'Unknown';
     }
   };
 
   const getDocumentId = () => {
     if (documentData.document_id) return documentData.document_id;
-    if (documentData.share_id) return `DOC-${documentData.share_id.substring(0, 8).toUpperCase()}`;
+    if (documentData.share_id) {
+      return `DOC-${documentData.share_id.substring(0, 8).toUpperCase()}`;
+    }
     return 'N/A';
   };
 
-  const getDocumentTitle = () => {
-    if (documentData.document_name) return cleanDocumentTitle(documentData.document_name);
-    if (documentData.s3_url) {
-      const fileName = documentData.s3_url.split('/').pop().split('?')[0];
-      return cleanDocumentTitle(fileName);
+  const metadataItems = [
+    {
+      label: 'Document ID',
+      value: getDocumentId()
+    },
+    {
+      label: 'Shared By',
+      value: documentData.shared_by || documentData.owner || 'Anonymous'
+    },
+    {
+      label: 'Expires',
+      value: formatExpiryDate(documentData.expiry_date)
+    },
+    {
+      label: 'Access Type',
+      value: documentData.view_once ? (
+        <span className="badge badge-warning metadata-badge">View Once</span>
+      ) : (
+        <span className="badge badge-info metadata-badge">Multiple Views</span>
+      )
     }
-    return 'Shared Document';
-  };
+  ];
 
   return (
-    <div className="document-metadata">
-      <h1 className="document-title">{getDocumentTitle()}</h1>
-      
+    <header className="document-metadata">
+      <h1 className="document-title">
+        {cleanDocumentTitle(documentData.document_name || documentData.s3_url)}
+      </h1>
+
       <div className="metadata-grid">
-        <div className="metadata-item">
-          <span className="metadata-label">Document ID</span>
-          <span className="metadata-value">{getDocumentId()}</span>
-        </div>
-
-        <div className="metadata-item">
-          <span className="metadata-label">Shared By</span>
-          <span className="metadata-value">
-            {documentData.shared_by || documentData.owner || 'Anonymous'}
-          </span>
-        </div>
-
-        <div className="metadata-item">
-          <span className="metadata-label">Expires</span>
-          <span className="metadata-value">
-            {documentData.expiry_date ? formatExpiryDate(documentData.expiry_date) : 'Never'}
-          </span>
-        </div>
-
-        <div className="metadata-item">
-          <span className="metadata-label">Access Type</span>
-          <span className="metadata-value">
-            {documentData.view_once ? (
-              <span className="badge badge-warning">View Once</span>
-            ) : (
-              <span className="badge badge-info">Multiple Views</span>
-            )}
-          </span>
-        </div>
+        {metadataItems.map(({ label, value }) => (
+          <div className="metadata-item" key={label}>
+            <span className="metadata-label">{label}</span>
+            <span className="metadata-value">{value}</span>
+          </div>
+        ))}
+        {children}
       </div>
-    </div>
+    </header>
   );
 };
 
