@@ -1,6 +1,31 @@
 import React, { useState, useEffect } from 'react';
 
-const CountdownTimer = ({ expiryDate }) => {
+const TimerChipIcon = () => (
+  <svg
+    aria-hidden="true"
+    className="meta-icon"
+    viewBox="0 0 16 16"
+    focusable="false"
+  >
+    <circle
+      cx="8"
+      cy="8"
+      r="5.5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.2"
+    />
+    <path
+      d="M8 4.5V8l2.25 1.5"
+      stroke="currentColor"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const CountdownTimer = ({ expiryDate, variant = 'card' }) => {
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -102,6 +127,17 @@ const CountdownTimer = ({ expiryDate }) => {
       return `${formatTime(timeLeft.hours)}:${formatTime(timeLeft.minutes)}:${formatTime(timeLeft.seconds)}`;
     }
   };
+
+  if (variant === 'chip') {
+    return (
+      <span className="meta-chip timer-chip" role="listitem" aria-label="Expires In">
+        <TimerChipIcon />
+        <span className={`timer-compact ${isExpired ? 'expired' : ''}`}>
+          {getDisplayTime()}
+        </span>
+      </span>
+    );
+  }
 
   return (
     <div className="countdown-timer-card">

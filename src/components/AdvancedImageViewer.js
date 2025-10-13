@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useImperativeHandle } from 'react';
 
-const AdvancedImageViewer = ({ src, alt = "Document", noDownload = false }) => {
+const AdvancedImageViewer = React.forwardRef(({ src, alt = "Document", noDownload = false, onZoomChange }, ref) => {
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -10,6 +10,7 @@ const AdvancedImageViewer = ({ src, alt = "Document", noDownload = false }) => {
   
   const containerRef = useRef(null);
   const imageRef = useRef(null);
+  const hasExternalRef = ref != null;
 
   const minScale = 0.1;
   const maxScale = 5;
@@ -145,6 +146,21 @@ const AdvancedImageViewer = ({ src, alt = "Document", noDownload = false }) => {
     setImageLoaded(false);
   };
 
+  const getZoomLabel = useCallback(() => `${Math.round(scale * 100)}%`, [scale]);
+
+  useImperativeHandle(ref, () => ({
+    zoomIn,
+    zoomOut,
+    resetView,
+    getZoomLabel
+  }), [zoomIn, zoomOut, resetView, getZoomLabel]);
+
+  useEffect(() => {
+    if (typeof onZoomChange === 'function') {
+      onZoomChange(getZoomLabel());
+    }
+  }, [scale, onZoomChange, getZoomLabel]);
+
   if (imageError) {
     return (
       <div className="image-error">
@@ -159,18 +175,20 @@ const AdvancedImageViewer = ({ src, alt = "Document", noDownload = false }) => {
   return (
     <div className="advanced-image-viewer">
       {/* Controls */}
-      <div className="viewer-controls">
-        <button onClick={zoomOut} disabled={scale <= minScale} title="Zoom Out (Ctrl + -)">
-          <span>−</span>
-        </button>
-        <span className="zoom-level">{Math.round(scale * 100)}%</span>
-        <button onClick={zoomIn} disabled={scale >= maxScale} title="Zoom In (Ctrl + +)">
-          <span>+</span>
-        </button>
-        <button onClick={resetView} title="Fit to Screen (Ctrl + 0)">
-          <span>⌂</span>
-        </button>
-      </div>
+      {!hasExternalRef && (
+        <div className="viewer-controls">
+          <button onClick={zoomOut} disabled={scale <= minScale} title="Zoom Out (Ctrl + -)">
+            <span>−</span>
+          </button>
+          <span className="zoom-level">{Math.round(scale * 100)}%</span>
+          <button onClick={zoomIn} disabled={scale >= maxScale} title="Zoom In (Ctrl + +)">
+            <span>+</span>
+          </button>
+          <button onClick={resetView} title="Fit to Screen (Ctrl + 0)">
+            <span>⌂</span>
+          </button>
+        </div>
+      )}
 
       {/* Image Container */}
       <div 
@@ -215,6 +233,8 @@ const AdvancedImageViewer = ({ src, alt = "Document", noDownload = false }) => {
       </div>
     </div>
   );
-};
+});
+
+AdvancedImageViewer.displayName = 'AdvancedImageViewer';
 
 export default AdvancedImageViewer;

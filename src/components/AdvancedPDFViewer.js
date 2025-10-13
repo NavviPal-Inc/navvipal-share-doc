@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback, useImperativeHandle } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
@@ -6,7 +6,7 @@ import 'react-pdf/dist/esm/Page/TextLayer.css';
 // Set up PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
-const AdvancedPDFViewer = ({ file, onControlsRender }) => {
+const AdvancedPDFViewer = React.forwardRef(({ file, onControlsRender, onZoomChange }, ref) => {
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [scale, setScale] = useState(null);
@@ -14,6 +14,7 @@ const AdvancedPDFViewer = ({ file, onControlsRender }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const containerRef = useRef(null);
+  const hasExternalRef = ref != null;
 
   const minScale = 0.5;
   const maxScale = 3;
@@ -76,7 +77,10 @@ const AdvancedPDFViewer = ({ file, onControlsRender }) => {
   const fitToWidth = useCallback(() => {
     setScale(null);
     calculateFitToWidth();
-  }, [calculateFitToWidth]);
+    if (typeof onZoomChange === 'function') {
+      onZoomChange('Fit');
+    }
+  }, [calculateFitToWidth, onZoomChange]);
 
   const goToPage = useCallback((page) => {
     setPageNumber(prev => {
@@ -131,6 +135,24 @@ const AdvancedPDFViewer = ({ file, onControlsRender }) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [pageNumber, numPages, scale, prevPage, nextPage, zoomIn, zoomOut, fitToWidth]);
 
+  const getZoomLabel = useCallback(() => {
+    return scale !== null ? `${Math.round((scale || 1) * 100)}%` : 'Fit';
+  }, [scale]);
+
+  useImperativeHandle(ref, () => ({
+    zoomIn,
+    zoomOut,
+    fitToWidth,
+    resetZoom,
+    getZoomLabel
+  }), [zoomIn, zoomOut, fitToWidth, resetZoom, getZoomLabel]);
+
+  useEffect(() => {
+    if (typeof onZoomChange === 'function') {
+      onZoomChange(getZoomLabel());
+    }
+  }, [scale, onZoomChange, getZoomLabel]);
+
   if (error) {
     return (
       <div className="pdf-error">
@@ -143,7 +165,7 @@ const AdvancedPDFViewer = ({ file, onControlsRender }) => {
   }
 
   const controls = useMemo(() => {
-    if (isLoading || !numPages) {
+    if (isLoading || !numPages || hasExternalRef) {
       return null;
     }
 
@@ -207,7 +229,8 @@ const AdvancedPDFViewer = ({ file, onControlsRender }) => {
     resetZoom,
     fitToWidth,
     minScale,
-    maxScale
+    maxScale,
+    hasExternalRef
   ]);
 
   useEffect(() => {
@@ -269,6 +292,8 @@ const AdvancedPDFViewer = ({ file, onControlsRender }) => {
       )} */}
     </div>
   );
-};
+});
+
+AdvancedPDFViewer.displayName = 'AdvancedPDFViewer';
 
 export default AdvancedPDFViewer;

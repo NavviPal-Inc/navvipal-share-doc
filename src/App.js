@@ -144,12 +144,10 @@ function App() {
         onDownload={handleDownload}
       />
 
-      <div className="document-viewer">
-        <DocumentViewer
-          documentData={documentData}
-          s3Url={documentData.s3_url}
-        />
-      </div>
+      <DocumentViewer
+        documentData={documentData}
+        s3Url={documentData.s3_url}
+      />
 
       <AppDownloadBanner />
     </div>

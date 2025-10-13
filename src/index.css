@@ -64,7 +64,7 @@ code {
 /* Header Styles */
 .app-header {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 15px 30px;
+  padding: 5px 20px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   flex-shrink: 0;
@@ -84,13 +84,16 @@ code {
   gap: 2px;
 }
 
-.brand-logo h1 {
-  color: white;
-  font-size: 28px;
-  font-weight: 800;
-  margin: 0;
-  letter-spacing: 1px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+.brand-logo-image {
+  height: 60px;
+  width: auto;
+  display: block;
+}
+
+.app-header .brand-logo-image {
+  transform: scale(3);
+  transform-origin: left center;
+  margin-right: 160px;
 }
 
 .brand-logo .tagline {
@@ -481,11 +484,15 @@ code {
   }
   
   .app-header {
-    padding: 12px 20px;
+    padding: 5px 12px;
   }
   
-  .brand-logo h1 {
-    font-size: 22px;
+  .brand-logo-image {
+    height: 48px;
+  }
+
+  .app-header .brand-logo-image {
+    margin-right: 128px;
   }
   
   .brand-logo .tagline {

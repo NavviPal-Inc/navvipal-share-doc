@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
@@ -17,7 +17,11 @@ const DocumentViewer = ({ documentData, s3Url }) => {
   const [error, setError] = useState(null);
   const [fileType, setFileType] = useState('');
   const [contentVisible, setContentVisible] = useState(true);
-  const [pdfControls, setPdfControls] = useState(null);
+  const [, setPdfControls] = useState(null);
+  const pdfApiRef = useRef(null);
+  const imageApiRef = useRef(null);
+  const [pdfZoomLabel, setPdfZoomLabel] = useState('Fit');
+  const [imageZoomLabel, setImageZoomLabel] = useState('100%');
   
   const noDownload = documentData?.no_download || false;
   const noScreenshots = documentData?.no_screenshots || false;
@@ -29,6 +33,16 @@ const DocumentViewer = ({ documentData, s3Url }) => {
   useEffect(() => {
     if (fileType !== 'pdf') {
       setPdfControls(null);
+    }
+  }, [fileType]);
+
+  useEffect(() => {
+    if (fileType === 'pdf') {
+      const label = pdfApiRef.current?.getZoomLabel?.();
+      setPdfZoomLabel(label ?? 'Fit');
+    } else if (fileType === 'image') {
+      const label = imageApiRef.current?.getZoomLabel?.();
+      setImageZoomLabel(label ?? '100%');
     }
   }, [fileType]);
 
@@ -116,6 +130,8 @@ const DocumentViewer = ({ documentData, s3Url }) => {
       setLoading(true);
       setError(null);
       setPdfControls(null);
+      setPdfZoomLabel('Fit');
+      setImageZoomLabel('100%');
       
       const blob = await apiService.fetchDocumentContent(s3Url);
       const url = URL.createObjectURL(blob);
@@ -173,14 +189,21 @@ const DocumentViewer = ({ documentData, s3Url }) => {
 
   const renderImage = () => (
     <AdvancedImageViewer 
+      ref={imageApiRef}
       src={content} 
       alt="Document"
       noDownload={noDownload}
+      onZoomChange={setImageZoomLabel}
     />
   );
 
   const renderPDF = () => (
-    <AdvancedPDFViewer file={content} onControlsRender={setPdfControls} />
+    <AdvancedPDFViewer
+      ref={pdfApiRef}
+      file={content}
+      onControlsRender={setPdfControls}
+      onZoomChange={setPdfZoomLabel}
+    />
   );
 
   const renderCSV = () => (
@@ -304,42 +327,106 @@ const DocumentViewer = ({ documentData, s3Url }) => {
     }
   };
 
+  const isZoomable = fileType === 'pdf' || fileType === 'image';
+  const activeViewerRef = isZoomable ? (fileType === 'pdf' ? pdfApiRef : imageApiRef) : null;
+  const hasViewerApi = Boolean(activeViewerRef?.current);
+  const zoomLabel = isZoomable ? (fileType === 'pdf' ? pdfZoomLabel : imageZoomLabel) : '—';
+  const zoomButtonsDisabled = !hasViewerApi || loading;
+
+  const handleFullscreenToggle = () => {
+    if (typeof document === 'undefined') {
+      return;
+    }
+    const el = document.querySelector('.document-viewer') || document.body;
+    if (!document.fullscreenElement) {
+      el?.requestFullscreen?.();
+    } else {
+      document.exitFullscreen?.();
+    }
+  };
+
   return (
-    <section className="document-content">
-      {documentData && (
-        <div className="document-metadata-wrapper inside-viewer">
-          <DocumentMetadata documentData={documentData}>
-            {documentData.expiry_date && (
-              <CountdownTimer expiryDate={documentData.expiry_date} />
+    <>
+      <section className="viewer-topbar">
+        <div className="viewer-topbar-left">
+          {documentData && (
+            <DocumentMetadata documentData={documentData} compact />
+          )}
+        </div>
+
+        <div className="viewer-topbar-center">
+          {documentData?.expiry_date && (
+            <CountdownTimer expiryDate={documentData.expiry_date} variant="chip" />
+          )}
+        </div>
+
+        <div className="viewer-topbar-right">
+          <button
+            className="viewer-topbar-btn"
+            aria-label="Zoom Out"
+            onClick={() => {
+              if (fileType === 'pdf') {
+                pdfApiRef.current?.zoomOut?.();
+              } else if (fileType === 'image') {
+                imageApiRef.current?.zoomOut?.();
+              }
+            }}
+            title="Zoom Out"
+            disabled={zoomButtonsDisabled}
+          >
+            −
+          </button>
+          <span className="viewer-topbar-zoom-level">
+            {zoomLabel}
+          </span>
+          <button
+            className="viewer-topbar-btn"
+            aria-label="Zoom In"
+            onClick={() => {
+              if (fileType === 'pdf') {
+                pdfApiRef.current?.zoomIn?.();
+              } else if (fileType === 'image') {
+                imageApiRef.current?.zoomIn?.();
+              }
+            }}
+            title="Zoom In"
+            disabled={zoomButtonsDisabled}
+          >
+            +
+          </button>
+          <button
+            className="viewer-topbar-btn"
+            aria-label="Fullscreen"
+            onClick={handleFullscreenToggle}
+            title="Fullscreen"
+          >
+            ⛶
+          </button>
+        </div>
+      </section>
+
+      <div className="document-viewer">
+        <section className="document-content">
+          <div className={`document-body ${noScreenshots ? 'no-screenshots' : ''}`}>
+            {noScreenshots && !contentVisible ? (
+              <div className="screenshot-protection-overlay">
+                <div className="protection-message">
+                  <h2>🔒 Screenshot Protection Active</h2>
+                  <p>Content temporarily hidden</p>
+                </div>
+              </div>
+            ) : (
+              <>
+                {renderContent()}
+                {documentData.watermark && (
+                  <div className="watermark">NAVVIPAL</div>
+                )}
+              </>
             )}
-          </DocumentMetadata>
-        </div>
-      )}
-
-      {pdfControls && (
-        <div className="pdf-controls-wrapper inside-viewer">
-          {pdfControls}
-        </div>
-      )}
-
-      <div className={`document-body ${noScreenshots ? 'no-screenshots' : ''}`}>
-        {noScreenshots && !contentVisible ? (
-          <div className="screenshot-protection-overlay">
-            <div className="protection-message">
-              <h2>🔒 Screenshot Protection Active</h2>
-              <p>Content temporarily hidden</p>
-            </div>
           </div>
-        ) : (
-          <>
-            {renderContent()}
-            {documentData.watermark && (
-              <div className="watermark">NAVVIPAL</div>
-            )}
-          </>
-        )}
+        </section>
       </div>
-    </section>
+    </>
   );
 };
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import navvipalLogo from './navvipal-logo-wit.svg';
 
 const Header = ({ documentData, onDownload }) => {
   const canDownload = documentData && !documentData.no_download;
@@ -13,7 +14,7 @@ const Header = ({ documentData, onDownload }) => {
     <header className="app-header">
       <div className="header-content">
         <div className="brand-logo">
-          <h1>NavviPal</h1>
+          <img src={navvipalLogo} alt="NavviPal" className="brand-logo-image" />
         </div>
         
         <div className="header-actions">
