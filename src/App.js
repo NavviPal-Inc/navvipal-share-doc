@@ -5,18 +5,6 @@ import AppDownloadBanner from './components/AppDownloadBanner';
 import apiService from './services/api';
 import './App.css';
 
-const MOCK_DOCUMENT_DATA = {
-  document_id: 'MOCK-DOC-001',
-  share_id: 'mock-share-id',
-  document_name: 'NavviPal Demo Document.pdf',
-  s3_url: '/mock.pdf',
-  shared_by: 'NavviPal Demo',
-  expiry_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-  view_once: false,
-  no_download: false,
-  no_screenshots: false
-};
-
 function App() {
   const [documentData, setDocumentData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -47,8 +35,9 @@ function App() {
       const shareId = getShareId();
 
       if (!shareId) {
-        setDocumentData({ ...MOCK_DOCUMENT_DATA });
+        setDocumentData(null);
         setHasViewed(false);
+        setError('This secure document link is missing a reference. Please open the exact link provided in your NavviPal email.');
         return;
       }
 
@@ -66,6 +55,8 @@ function App() {
       if (data.view_once) {
         apiService.markAsViewed();
         setHasViewed(true);
+      } else {
+        setHasViewed(false);
       }
     } catch (err) {
       setError(err.message);

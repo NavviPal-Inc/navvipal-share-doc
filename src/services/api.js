@@ -1,35 +1,15 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://doc-service.navvipal.com';
-const USE_MOCK_DATA = String(process.env.REACT_APP_USE_MOCK_DATA).toLowerCase() === 'true';
-
-const getMockDocumentDetails = (shareId) => {
-  return {
-    document_id: 'MOCK-DOC-001',
-    share_id: shareId || 'mock-share-id',
-    document_name: 'mock.pdf',
-    s3_url: '/mock.pdf',
-    shared_by: 'NavviPal Demo',
-    expiry_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-    view_once: false,
-    no_download: false,
-    no_screenshots: false
-  };
-};
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://doc-service.navvipal.com';
 
 class ApiService {
   constructor() {
     this.viewedOnce = false;
-    this.mockMode = USE_MOCK_DATA;
-  }
-
-  isMockMode() {
-    return this.mockMode;
   }
 
   async fetchDocumentDetails(shareId) {
-    if (this.mockMode) {
-      return getMockDocumentDetails(shareId);
+    if (!shareId) {
+      throw new Error('Missing document identifier. Please open the original secure share link.');
     }
 
     try {
@@ -37,7 +17,7 @@ class ApiService {
         params: { share_id: shareId },
         timeout: 10000
       });
-      
+
       return response.data;
     } catch (error) {
       if (error.response?.status === 404 || error.response?.status === 403) {
@@ -53,12 +33,16 @@ class ApiService {
   }
 
   async fetchDocumentContent(s3Url) {
+    if (!s3Url) {
+      throw new Error('Missing document URL. Unable to load document content.');
+    }
+
     try {
-      const response = await axios.get(this.mockMode ? '/mock.pdf' : s3Url, {
+      const response = await axios.get(s3Url, {
         responseType: 'blob',
-        timeout: this.mockMode ? 5000 : 30000
+        timeout: 30000
       });
-      
+
       return response.data;
     } catch (error) {
       throw new Error('Failed to load document content. The file may be corrupted or inaccessible.');
@@ -70,10 +54,6 @@ class ApiService {
   }
 
   hasBeenViewed() {
-    if (this.mockMode) {
-      return false;
-    }
-
     return this.viewedOnce;
   }
 }
