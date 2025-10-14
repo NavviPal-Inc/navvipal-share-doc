@@ -87,34 +87,38 @@ body {
 .header-actions {
   display: flex;
   gap: 12px;
-  align-items: center;
+  align-items: stretch;
 }
 
 .header-btn {
-  padding: 10px 20px;
-  border-radius: 10px;
-  font-size: 13px;
+  flex: 1 1 220px;
+  padding: 16px 24px;
+  border-radius: 12px;
+  font-size: 15px;
   font-weight: 700;
   text-decoration: none;
   cursor: pointer;
   transition: all 0.3s ease;
   border: none;
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: flex-start;
+  gap: 12px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  min-height: 64px;
 }
 
 .header-btn-download {
-  background: linear-gradient(135deg, #a000ff, #ff2fbc);
+  background: linear-gradient(135deg, #4b00ff, #b300ff);
   color: #ffffff;
-  box-shadow: 0 4px 16px rgba(160, 0, 255, 0.4);
+  box-shadow: 0 4px 18px rgba(94, 0, 255, 0.45);
 }
 
 .header-btn-download:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(160, 0, 255, 0.6);
+  background: linear-gradient(135deg, #5f00ff, #c500ff);
+  box-shadow: 0 6px 22px rgba(118, 0, 255, 0.6);
 }
 
 .header-btn-download:disabled {
@@ -127,6 +131,8 @@ body {
   background: #ffffff;
   color: #000000;
   box-shadow: 0 4px 16px rgba(255, 255, 255, 0.2);
+  text-transform: none;
+  letter-spacing: normal;
 }
 
 .header-btn-appstore:hover {
@@ -1163,8 +1169,11 @@ body {
   }
 
   .header-btn {
-    padding: 8px 14px;
-    font-size: 11px;
+    flex: 1 1 160px;
+    padding: 12px 18px;
+    font-size: 12px;
+    min-height: 56px;
+    gap: 10px;
   }
 
   .header-btn svg {
@@ -1312,6 +1321,15 @@ body {
   .header-actions {
     width: 100%;
     justify-content: center;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .header-btn {
+    width: 100%;
+    flex: none;
+    min-height: 54px;
   }
 
   .document-viewer {

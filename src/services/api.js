@@ -1,6 +1,10 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://doc-service.navvipal.com';
+const configuredBase = (process.env.REACT_APP_API_BASE_URL || '').trim();
+const API_BASE_URL =
+  configuredBase && configuredBase !== 'null' && configuredBase !== 'undefined'
+    ? configuredBase
+    : 'https://doc-service.navvipal.com';
 
 class ApiService {
   constructor() {
@@ -27,7 +31,11 @@ class ApiService {
       } else if (error.code === 'ECONNABORTED') {
         throw new Error('Request timeout. Please check your internet connection and try again.');
       } else {
-        throw new Error('Failed to load document. Please try again later.');
+        const serverMessage =
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          error.message;
+        throw new Error(serverMessage || 'Failed to load document. Please try again later.');
       }
     }
   }

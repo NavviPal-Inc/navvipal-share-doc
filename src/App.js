@@ -10,36 +10,78 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [hasViewed, setHasViewed] = useState(false);
+  const [isExpired, setIsExpired] = useState(false);
 
   // Extract share_id from URL query parameters
   const getShareId = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const shareIdFromUrl = urlParams.get('share_id');
 
-    if (shareIdFromUrl) {
-      return shareIdFromUrl;
+    if (!shareIdFromUrl) {
+      throw new Error('This secure document link is missing a reference. Please open the exact link provided in your NavviPal email.');
     }
 
-    return null;
+    return shareIdFromUrl;
+  };
+
+  // Check if document has expired
+  const checkIfExpired = (expiryDate) => {
+    if (!expiryDate) {
+      return false;
+    }
+
+    try {
+      const expiryDateObj = new Date(expiryDate);
+      const now = new Date();
+
+      let expiryTime;
+      if (expiryDate.includes('Z') || expiryDate.includes('+') || expiryDate.includes('T')) {
+        expiryTime = expiryDateObj.getTime();
+      } else {
+        expiryTime = Date.UTC(
+          expiryDateObj.getUTCFullYear(),
+          expiryDateObj.getUTCMonth(),
+          expiryDateObj.getUTCDate(),
+          expiryDateObj.getUTCHours(),
+          expiryDateObj.getUTCMinutes(),
+          expiryDateObj.getUTCSeconds()
+        );
+      }
+
+      return now.getTime() >= expiryTime;
+    } catch (err) {
+      console.error('Error checking expiry date:', err);
+      return false;
+    }
   };
 
   useEffect(() => {
     loadDocument();
   }, []);
 
+  // Periodically check if document has expired while viewing
+  useEffect(() => {
+    if (documentData?.expiry_date) {
+      const intervalId = setInterval(() => {
+        if (checkIfExpired(documentData.expiry_date)) {
+          setIsExpired(true);
+          setError('This document has expired and is no longer available.');
+          setDocumentData(null);
+        }
+      }, 60000);
+
+      return () => clearInterval(intervalId);
+    }
+  }, [documentData]);
+
   const loadDocument = async () => {
     try {
       setLoading(true);
       setError(null);
+      setIsExpired(false);
+      setHasViewed(false);
 
       const shareId = getShareId();
-
-      if (!shareId) {
-        setDocumentData(null);
-        setHasViewed(false);
-        setError('This secure document link is missing a reference. Please open the exact link provided in your NavviPal email.');
-        return;
-      }
 
       // Check if document has already been viewed (for view-once functionality)
       if (apiService.hasBeenViewed()) {
@@ -49,6 +91,14 @@ function App() {
       }
 
       const data = await apiService.fetchDocumentDetails(shareId);
+
+      if (checkIfExpired(data.expiry_date)) {
+        setIsExpired(true);
+        setError('This document has expired and is no longer available.');
+        setDocumentData(null);
+        return;
+      }
+
       setDocumentData(data);
 
       // Mark as viewed if view_once is true
@@ -59,7 +109,9 @@ function App() {
         setHasViewed(false);
       }
     } catch (err) {
+      console.error('Document load failed:', err);
       setError(err.message);
+      setDocumentData(null);
     } finally {
       setLoading(false);
     }
@@ -102,12 +154,19 @@ function App() {
     return (
       <div className="container">
         <div className="error">
-          <h2>Unable to Load Document</h2>
+          <div className="error-icon">{isExpired ? '⏰' : '⚠️'}</div>
+          <h2>{isExpired ? 'Document Expired' : 'Unable to Load Document'}</h2>
           <p>{error}</p>
-          {!hasViewed && (
-            <button className="retry-button" onClick={loadDocument}>
-              Try Again
-            </button>
+          {isExpired ? (
+            <p className="error-detail">
+              This document is no longer accessible as it has passed its expiration date.
+            </p>
+          ) : (
+            !hasViewed && (
+              <button className="retry-button" onClick={loadDocument}>
+                Try Again
+              </button>
+            )
           )}
         </div>
       </div>
