@@ -1,14 +1,14 @@
 {
   "files": {
-    "main.css": "/static/css/main.05c2aa53.css",
-    "main.js": "/static/js/main.c24f9ee9.js",
+    "main.css": "/static/css/main.99043aad.css",
+    "main.js": "/static/js/main.a9aeb3e4.js",
     "static/media/navvipal-logo-wit.svg": "/static/media/navvipal-logo-wit.d071f7733279eb6643005d3b2470fe0d.svg",
     "index.html": "/index.html",
-    "main.05c2aa53.css.map": "/static/css/main.05c2aa53.css.map",
-    "main.c24f9ee9.js.map": "/static/js/main.c24f9ee9.js.map"
+    "main.99043aad.css.map": "/static/css/main.99043aad.css.map",
+    "main.a9aeb3e4.js.map": "/static/js/main.a9aeb3e4.js.map"
   },
   "entrypoints": [
-    "static/css/main.05c2aa53.css",
-    "static/js/main.c24f9ee9.js"
+    "static/css/main.99043aad.css",
+    "static/js/main.a9aeb3e4.js"
   ]
 }
