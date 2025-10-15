@@ -4,7 +4,7 @@ const configuredBase = (process.env.REACT_APP_API_BASE_URL || '').trim();
 const API_BASE_URL =
   configuredBase && configuredBase !== 'null' && configuredBase !== 'undefined'
     ? configuredBase
-    : 'https://doc-service.navvipal.com';
+    : '/api';
 
 class ApiService {
   constructor() {
