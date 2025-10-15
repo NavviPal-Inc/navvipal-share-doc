@@ -92,7 +92,7 @@ body {
 
 .header-btn {
   flex: 1 1 220px;
-  padding: 16px 24px;
+  padding: 12px 24px;
   border-radius: 12px;
   font-size: 15px;
   font-weight: 700;
@@ -106,7 +106,7 @@ body {
   gap: 12px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  min-height: 64px;
+  min-height: 56px;
 }
 
 .header-btn-download {
