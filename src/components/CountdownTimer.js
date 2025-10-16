@@ -45,27 +45,25 @@ const CountdownTimer = ({ expiryDate, variant = 'card' }) => {
       // Get current time
       const now = new Date();
 
-      // Parse expiry date
+      // Parse expiry date - API sends UTC time
       let expiryTime;
       try {
-        const expiryDateObj = new Date(expiryDate);
+        // Ensure the date is treated as UTC
+        let utcDateString = expiryDate;
         
-        // Check if the date string includes timezone info
-        if (expiryDate.includes('Z') || expiryDate.includes('+') || expiryDate.includes('T')) {
-          // Date string has timezone info, use it directly
-          expiryTime = expiryDateObj.getTime();
-        } else {
-          // Date string doesn't have timezone info, treat as UTC
-          expiryTime = Date.UTC(
-            expiryDateObj.getUTCFullYear(),
-            expiryDateObj.getUTCMonth(),
-            expiryDateObj.getUTCDate(),
-            expiryDateObj.getUTCHours(),
-            expiryDateObj.getUTCMinutes(),
-            expiryDateObj.getUTCSeconds(),
-            expiryDateObj.getUTCMilliseconds()
-          );
+        // If date has 'T' but no 'Z' and no timezone offset, add 'Z' to treat as UTC
+        if (expiryDate.includes('T') && !expiryDate.includes('Z') && !expiryDate.includes('+') && !expiryDate.includes('-', 10)) {
+          utcDateString = expiryDate + 'Z';
         }
+        
+        const expiryDateObj = new Date(utcDateString);
+        
+        // Validate the parsed date
+        if (isNaN(expiryDateObj.getTime())) {
+          throw new Error('Invalid date');
+        }
+        
+        expiryTime = expiryDateObj.getTime();
       } catch (error) {
         console.error('Invalid expiry date format:', expiryDate, error);
         setIsExpired(true);

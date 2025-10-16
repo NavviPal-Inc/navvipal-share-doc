@@ -31,24 +31,25 @@ function App() {
     }
 
     try {
-      const expiryDateObj = new Date(expiryDate);
       const now = new Date();
-
-      let expiryTime;
-      if (expiryDate.includes('Z') || expiryDate.includes('+') || expiryDate.includes('T')) {
-        expiryTime = expiryDateObj.getTime();
-      } else {
-        expiryTime = Date.UTC(
-          expiryDateObj.getUTCFullYear(),
-          expiryDateObj.getUTCMonth(),
-          expiryDateObj.getUTCDate(),
-          expiryDateObj.getUTCHours(),
-          expiryDateObj.getUTCMinutes(),
-          expiryDateObj.getUTCSeconds()
-        );
+      
+      // Ensure the date is treated as UTC
+      let utcDateString = expiryDate;
+      
+      // If date has 'T' but no 'Z' and no timezone offset, add 'Z' to treat as UTC
+      if (expiryDate.includes('T') && !expiryDate.includes('Z') && !expiryDate.includes('+') && !expiryDate.includes('-', 10)) {
+        utcDateString = expiryDate + 'Z';
       }
-
-      return now.getTime() >= expiryTime;
+      
+      const expiryDateObj = new Date(utcDateString);
+      
+      // Validate the parsed date
+      if (isNaN(expiryDateObj.getTime())) {
+        console.error('Invalid expiry date:', expiryDate);
+        return false;
+      }
+      
+      return now.getTime() >= expiryDateObj.getTime();
     } catch (err) {
       console.error('Error checking expiry date:', err);
       return false;
