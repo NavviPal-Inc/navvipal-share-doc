@@ -39,12 +39,25 @@ The app integrates with the document service API:
 npm install
 ```
 
-2. Start the development server:
+2. Create a `.env` file in the project root:
+```bash
+# Create .env file
+touch .env
+```
+
+3. Add the API base URL to `.env`:
+```
+REACT_APP_API_BASE_URL=https://doc-service.navvipal.com
+```
+
+4. Start the development server:
 ```bash
 npm start
 ```
 
-3. Open [http://localhost:3000](http://localhost:3000) to view the app
+5. Open [http://localhost:3000](http://localhost:3000) to view the app
+
+**Note**: The `.env` file is required for the app to connect to the document service API. See `ENV_SETUP.md` for detailed instructions.
 
 ## Usage
 
