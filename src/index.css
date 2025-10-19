@@ -190,47 +190,62 @@ code {
 }
 
 .watermark {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) rotate(-45deg);
-  font-size: 80px;
-  font-weight: 900;
-  color: rgba(102, 126, 234, 0.15);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
   z-index: 10;
   user-select: none;
-  letter-spacing: 8px;
+  overflow: hidden;
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 250px,
+    rgba(102, 126, 234, 0.03) 250px,
+    rgba(102, 126, 234, 0.03) 251px
+  );
+}
+
+.watermark::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background-image: 
+    repeating-linear-gradient(
+      45deg,
+      transparent 0,
+      transparent 10px,
+      transparent 10px,
+      transparent 300px
+    );
+  background-size: 400px 400px;
+  animation: none;
+}
+
+.watermark::after {
+  content: ' NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL NAVVIPAL';
+  position: absolute;
+  top: -100%;
+  left: -100%;
+  width: 300%;
+  height: 300%;
+  font-size: 30px;
+  font-weight: 900;
+  color: rgba(102, 126, 234, 0.15);
+  letter-spacing: 40px;
+  line-height: 280px;
+  word-wrap: break-word;
+  transform: rotate(-45deg);
   text-shadow: 
     2px 2px 4px rgba(0, 0, 0, 0.1),
     -2px -2px 4px rgba(255, 255, 255, 0.1);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', sans-serif;
-}
-
-/* Add repeating watermark pattern */
-.watermark::before,
-.watermark::after {
-  content: 'NAVVIPAL';
-  position: absolute;
-  font-size: 80px;
-  font-weight: 900;
-  color: rgba(102, 126, 234, 0.15);
-  letter-spacing: 8px;
-  text-shadow: 
-    2px 2px 4px rgba(0, 0, 0, 0.1),
-    -2px -2px 4px rgba(255, 255, 255, 0.1);
-}
-
-.watermark::before {
-  top: -200px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.watermark::after {
-  top: 200px;
-  left: 50%;
-  transform: translateX(-50%);
+  white-space: pre-wrap;
 }
 
 /* Prevent screenshots when enabled */
@@ -501,15 +516,10 @@ code {
     font-size: 10px;
   }
   
-  .watermark {
-    font-size: 40px;
-    letter-spacing: 4px;
-  }
-  
-  .watermark::before,
   .watermark::after {
     font-size: 40px;
-    letter-spacing: 4px;
+    letter-spacing: 20px;
+    line-height: 140px;
   }
   
   .countdown-timer {
