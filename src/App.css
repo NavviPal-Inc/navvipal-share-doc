@@ -1463,8 +1463,8 @@ body {
 }
 
 @media (max-width: 600px) {
-  .pdf-scroll { padding: 12px 0; }
-  .pdf-page-wrap { padding: 0px; margin-bottom: 16px; }
+  .pdf-scroll { padding: 0px 0; }
+  .pdf-page-wrap { padding: 0px; margin-bottom: 6px; }
 }
 
 .pdf-scroll {
