@@ -10,7 +10,7 @@
 }
 
 :root {
-  --header-height: 72px;
+  --header-height: 90px;
 }
 
 body {
@@ -1440,4 +1440,44 @@ body {
     box-shadow: none;
     border: none;
   }
+}
+
+/* --- PDF continuous scroll (NavviPal) --- */
+.pdf-scroll {
+  overflow-y: auto;
+  /* Adjust if needed to fit under your header/toolbar */
+  max-height: calc(100vh - 180px);
+  padding: 16px 0;
+  scroll-behavior: smooth;
+}
+
+.pdf-page-wrap {
+  margin: 0 auto 24px;
+  padding: 0px;
+  background: rgba(8, 0, 18, 0.92);
+  border: 1px solid rgba(160, 0, 255, 0.25);
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(160, 0, 255, 0.18);
+  width: max-content;
+  max-width: 100%;
+}
+
+@media (max-width: 600px) {
+  .pdf-scroll { max-height: calc(100vh - 160px); }
+  .pdf-page-wrap { padding: 0px; margin-bottom: 16px; }
+}
+
+.pdf-scroll {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.pdf-scroll .pdf-document {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
 }

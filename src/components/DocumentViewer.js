@@ -389,6 +389,21 @@ const DocumentViewer = ({ documentData, s3Url }) => {
           </button>
           <button
             className="viewer-topbar-btn"
+            aria-label="Fit"
+            onClick={() => {
+              if (fileType === 'pdf') {
+                pdfApiRef.current?.fitToWidth?.();
+              } else if (fileType === 'image') {
+                imageApiRef.current?.resetView?.();
+              }
+            }}
+            title="Fit to Window"
+            disabled={zoomButtonsDisabled}
+          >
+            Fit
+          </button>
+          <button
+            className="viewer-topbar-btn"
             aria-label="Fullscreen"
             onClick={handleFullscreenToggle}
             title="Fullscreen"

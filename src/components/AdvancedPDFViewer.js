@@ -6,39 +6,67 @@ import 'react-pdf/dist/esm/Page/TextLayer.css';
 // Set up PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
-const AdvancedPDFViewer = React.forwardRef(({ file, onControlsRender, onZoomChange }, ref) => {
+const AdvancedPDFViewer = React.forwardRef(({ file, onControlsRender, onZoomChange, onPageChange }, ref) => {
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
+  const [pageInputValue, setPageInputValue] = useState(1);
   const [scale, setScale] = useState(null);
   const [pageWidth, setPageWidth] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const containerRef = useRef(null);
+  const widthContainerRef = useRef(null);
+  const visibleRefs = useRef([]);
+  visibleRefs.current = [];
+  const setPageRef = useCallback((el) => {
+    if (el) {
+      visibleRefs.current.push(el);
+    }
+  }, []);
   const hasExternalRef = ref != null;
 
   const minScale = 0.5;
   const maxScale = 3;
   const scaleStep = 0.25;
 
-  const onDocumentLoadSuccess = ({ numPages }) => {
-    setNumPages(numPages);
-    setIsLoading(false);
-    setError(null);
-    // Calculate initial scale to fit width
-    calculateFitToWidth();
-  };
-
   const calculateFitToWidth = useCallback(() => {
-    if (containerRef.current) {
-      const containerWidth = containerRef.current.clientWidth - 40; // Account for padding
-      setPageWidth(containerWidth);
+    const host = widthContainerRef.current || containerRef.current;
+    if (!host) return;
+
+    const horizontalPadding = 40;
+    const availableWidth = host.clientWidth - horizontalPadding;
+
+    if (availableWidth > 0) {
+      setPageWidth(availableWidth);
+    } else {
+      setPageWidth(null);
     }
   }, []);
+
+  const onDocumentLoadSuccess = ({ numPages }) => {
+    setNumPages(numPages);
+    setPageNumber(1);
+    setPageInputValue(1);
+    setError(null);
+
+    if (containerRef.current) {
+      containerRef.current.scrollTo({ top: 0 });
+    }
+
+    const schedule = typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function'
+      ? window.requestAnimationFrame
+      : (cb) => setTimeout(cb, 0);
+
+    schedule(() => {
+      calculateFitToWidth();
+      setIsLoading(false);
+    });
+  };
 
   // Recalculate on window resize
   useEffect(() => {
     const handleResize = () => {
-      if (!isLoading && containerRef.current) {
+      if (!isLoading && (widthContainerRef.current || containerRef.current)) {
         calculateFitToWidth();
       }
     };
@@ -82,20 +110,52 @@ const AdvancedPDFViewer = React.forwardRef(({ file, onControlsRender, onZoomChan
     }
   }, [calculateFitToWidth, onZoomChange]);
 
-  const goToPage = useCallback((page) => {
-    setPageNumber(prev => {
-      const target = Math.max(1, Math.min(page, numPages));
-      return isNaN(target) ? prev : target;
+  useEffect(() => {
+    setIsLoading(true);
+    setNumPages(null);
+    setPageNumber(1);
+    setPageInputValue(1);
+    setPageWidth(null);
+    setScale(null);
+  }, [file]);
+
+  const scrollToPage = useCallback((target) => {
+    if (!numPages || !containerRef.current) return;
+    const clamped = Math.max(1, Math.min(target, numPages));
+    const node = visibleRefs.current.find(n => Number(n?.dataset?.page) === clamped);
+    if (!node) return;
+
+    const container = containerRef.current;
+    const topOffset = Math.max(node.offsetTop - 16, 0);
+
+    container.scrollTo({
+      top: topOffset,
+      behavior: 'smooth'
     });
   }, [numPages]);
 
+  const goToPage = useCallback((page) => {
+    if (!numPages) return;
+    const target = Math.max(1, Math.min(page, numPages));
+    setPageInputValue(target);
+    scrollToPage(target);
+  }, [numPages, scrollToPage]);
+
   const nextPage = useCallback(() => {
-    setPageNumber(prev => Math.min(prev + 1, numPages));
-  }, [numPages]);
+    if (!numPages) return;
+    const current = pageInputValue || pageNumber;
+    const target = Math.min(current + 1, numPages);
+    setPageInputValue(target);
+    scrollToPage(target);
+  }, [numPages, pageInputValue, pageNumber, scrollToPage]);
 
   const prevPage = useCallback(() => {
-    setPageNumber(prev => Math.max(prev - 1, 1));
-  }, []);
+    if (!numPages) return;
+    const current = pageInputValue || pageNumber;
+    const target = Math.max(current - 1, 1);
+    setPageInputValue(target);
+    scrollToPage(target);
+  }, [numPages, pageInputValue, pageNumber, scrollToPage]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -134,6 +194,34 @@ const AdvancedPDFViewer = React.forwardRef(({ file, onControlsRender, onZoomChan
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [pageNumber, numPages, scale, prevPage, nextPage, zoomIn, zoomOut, fitToWidth]);
+
+  useEffect(() => {
+    if (!numPages || !containerRef.current || visibleRefs.current.length === 0) return;
+
+    const io = new IntersectionObserver((entries) => {
+      const visible = entries
+        .filter(entry => entry.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+      if (visible) {
+        const next = Number(visible.target.dataset.page);
+        if (next && next !== pageNumber) {
+          setPageNumber(next);
+          if (typeof onPageChange === 'function') {
+            onPageChange(next);
+          }
+        }
+      }
+    }, { root: containerRef.current, threshold: [0.6] });
+
+    visibleRefs.current.forEach(node => node && io.observe(node));
+
+    return () => io.disconnect();
+  }, [numPages, pageNumber, onPageChange, containerRef]);
+
+  useEffect(() => {
+    setPageInputValue(pageNumber);
+  }, [pageNumber]);
 
   const getZoomLabel = useCallback(() => {
     return scale !== null ? `${Math.round((scale || 1) * 100)}%` : 'Fit';
@@ -177,8 +265,8 @@ const AdvancedPDFViewer = React.forwardRef(({ file, onControlsRender, onZoomChan
           </button>
           <input
             type="number"
-            value={pageNumber}
-            onChange={(e) => goToPage(parseInt(e.target.value) || 1)}
+            value={pageInputValue}
+            onChange={(e) => goToPage(parseInt(e.target.value, 10) || 1)}
             min={1}
             max={numPages}
             className="page-input"
@@ -220,6 +308,7 @@ const AdvancedPDFViewer = React.forwardRef(({ file, onControlsRender, onZoomChan
     isLoading,
     numPages,
     pageNumber,
+    pageInputValue,
     scale,
     prevPage,
     nextPage,
@@ -254,34 +343,48 @@ const AdvancedPDFViewer = React.forwardRef(({ file, onControlsRender, onZoomChan
       {!onControlsRender && controls}
 
       {/* PDF Container */}
-      <div ref={containerRef} className="pdf-container">
-        <Document
-          file={file}
-          onLoadSuccess={onDocumentLoadSuccess}
-          onLoadError={onDocumentLoadError}
-          loading={
-            <div className="pdf-loading">
-              <div className="spinner"></div>
-              <p>Loading PDF...</p>
-            </div>
-          }
-          className="pdf-document"
-        >
-          <Page 
-            pageNumber={pageNumber} 
-            width={pageWidth}
-            scale={scale}
-            className="pdf-page"
-            renderTextLayer={true}
-            renderAnnotationLayer={true}
+      <div ref={widthContainerRef} className="pdf-container">
+        <div ref={containerRef} className="pdf-scroll">
+          <Document
+            file={file}
+            onLoadSuccess={onDocumentLoadSuccess}
+            onLoadError={onDocumentLoadError}
             loading={
               <div className="pdf-loading">
                 <div className="spinner"></div>
-                <p>Loading page...</p>
+                <p>Loading PDF...</p>
               </div>
             }
-          />
-        </Document>
+            className="pdf-document"
+          >
+            {numPages && Array.from({ length: numPages }, (_, i) => {
+              const n = i + 1;
+              return (
+                <div
+                  key={n}
+                  data-page={n}
+                  ref={setPageRef}
+                  className="pdf-page-wrap"
+                >
+                  <Page
+                    pageNumber={n}
+                    width={pageWidth ?? undefined}
+                    scale={scale === null ? undefined : scale}
+                    className="pdf-page"
+                    renderTextLayer={true}
+                    renderAnnotationLayer={true}
+                    loading={
+                      <div className="pdf-loading">
+                        <div className="spinner"></div>
+                        <p>Loading page...</p>
+                      </div>
+                    }
+                  />
+                </div>
+              );
+            })}
+          </Document>
+        </div>
       </div>
 
       {/* Instructions - show only when loaded
