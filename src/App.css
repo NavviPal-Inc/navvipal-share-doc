@@ -10,7 +10,7 @@
 }
 
 :root {
-  --header-height: 90px;
+  --header-height: 10px;
 }
 
 body {
@@ -18,7 +18,7 @@ body {
   background: #000000;
   color: #ffffff;
   min-height: 100vh;
-  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 #root {
@@ -32,7 +32,7 @@ body {
 .container {
   width: 100%;
   margin: 0;
-  padding: 0 0 96px;
+  padding: 0;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -176,10 +176,11 @@ body {
   grid-template-columns: 1fr auto;
   align-items: center;
   gap: 24px;
-  padding: 0 28px;
+  padding: 0 20px 40px;
   background: linear-gradient(180deg, rgba(10, 0, 20, 0.85) 0%, rgba(10, 0, 20, 0.60) 100%);
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(160, 0, 255, 0.18);
+  border-bottom: 0px solid rgba(160, 0, 255, 0.18);
+  margin-top: -1px;
 }
 
 .viewer-topbar-left {
@@ -281,19 +282,20 @@ body {
 
 .document-viewer {
   width: 100%;
-  max-width: 1040px;
-  margin: 16px auto 48px;
-  padding: 32px 42px 42px;
-  background: radial-gradient(120% 120% at 50% 0%, rgba(146, 0, 255, 0.28) 0%, rgba(26, 0, 46, 0.88) 48%, rgba(8, 0, 16, 0.94) 100%);
-  border-radius: 36px;
-  overflow: visible;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 0px 0px;
+  background: transparent;
+  border-radius: 0;
   position: relative;
-  border: 1px solid rgba(160, 0, 255, 0.35);
-  box-shadow: 0 40px 120px rgba(160, 0, 255, 0.25);
+  border: none;
+  box-shadow: none;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  backdrop-filter: blur(30px);
+  gap: 15px;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding-top: 0;
 }
 
 /* ==========================================
@@ -374,6 +376,7 @@ body {
   flex: 1;
   justify-content: flex-start;
   align-items: stretch;
+  min-height: 0;
 }
 
 .document-metadata-wrapper.inside-viewer {
@@ -1194,9 +1197,8 @@ body {
   }
 
   .document-viewer {
-    margin: 48px auto 32px;
-    padding: 48px 28px 36px;
-    gap: 4px;
+    padding: 0 20px 32px;
+    gap: 20px;
   }
 
   .document-metadata {
@@ -1362,9 +1364,9 @@ body {
   }
 
   .document-viewer {
-    margin: 14px auto 28px;
-    padding: 14px 22px 28px;
-    gap: 4px;
+    margin: 0;
+    padding: 0 16px 24px;
+    gap: 16px;
   }
 
   .document-metadata {
@@ -1444,9 +1446,7 @@ body {
 
 /* --- PDF continuous scroll (NavviPal) --- */
 .pdf-scroll {
-  overflow-y: auto;
-  /* Adjust if needed to fit under your header/toolbar */
-  max-height: calc(100vh - 180px);
+  overflow: visible;
   padding: 16px 0;
   scroll-behavior: smooth;
 }
@@ -1463,7 +1463,7 @@ body {
 }
 
 @media (max-width: 600px) {
-  .pdf-scroll { max-height: calc(100vh - 160px); }
+  .pdf-scroll { padding: 12px 0; }
   .pdf-page-wrap { padding: 0px; margin-bottom: 16px; }
 }
 

@@ -11,6 +11,7 @@ function App() {
   const [error, setError] = useState(null);
   const [hasViewed, setHasViewed] = useState(false);
   const [isExpired, setIsExpired] = useState(false);
+  const [isHeaderHidden, setIsHeaderHidden] = useState(false);
 
   // Extract share_id from URL query parameters
   const getShareId = () => {
@@ -59,6 +60,34 @@ function App() {
   useEffect(() => {
     loadDocument();
   }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const viewerEl = document.querySelector('.document-viewer');
+
+    const handleScroll = () => {
+      const viewerScrollTop = viewerEl?.scrollTop ?? 0;
+      const windowScrollTop = typeof window !== 'undefined' ? window.scrollY : 0;
+      const scrollPosition = Math.max(windowScrollTop, viewerScrollTop);
+      setIsHeaderHidden(scrollPosition > 20);
+    };
+
+    if (!viewerEl) {
+      setIsHeaderHidden(false);
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    viewerEl?.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      viewerEl?.removeEventListener('scroll', handleScroll);
+    };
+  }, [documentData]);
 
   // Periodically check if document has expired while viewing
   useEffect(() => {
@@ -140,9 +169,11 @@ function App() {
     }
   };
 
+  const containerClassName = isHeaderHidden ? 'container header-hidden' : 'container';
+
   if (loading) {
     return (
-      <div className="container">
+      <div className={containerClassName}>
         <div className="loading">
           <div className="spinner"></div>
           <p>Loading document...</p>
@@ -153,7 +184,7 @@ function App() {
 
   if (error) {
     return (
-      <div className="container">
+      <div className={containerClassName}>
         <div className="error">
           <div className="error-icon">{isExpired ? '⏰' : '⚠️'}</div>
           <h2>{isExpired ? 'Document Expired' : 'Unable to Load Document'}</h2>
@@ -176,7 +207,7 @@ function App() {
 
   if (!documentData) {
     return (
-      <div className="container">
+      <div className={containerClassName}>
         <div className="error">
           <h2>No Document Data</h2>
           <p>No document information was received from the server.</p>
@@ -189,7 +220,7 @@ function App() {
   }
 
   return (
-    <div className="container">
+    <div className={containerClassName}>
       <Header
         documentData={documentData}
         onDownload={handleDownload}
