@@ -86,13 +86,6 @@ body {
 
 .header-actions {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
-  align-items: stretch;
-}
-
-.header-buttons {
-  display: flex;
   gap: 12px;
   align-items: stretch;
 }
@@ -153,14 +146,22 @@ body {
   height: 18px;
 }
 
-.header-countdown {
-  display: flex;
-  justify-content: center;
+.header-btn .timer-inline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-left: auto;
+  min-width: 0;
+  text-align: right;
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 800;
+  font-size: 15px;
 }
 
-.header-countdown .timer-chip {
-  padding: 8px 14px;
-  font-size: 12px;
+.header-btn .timer-inline .timer-inline-value {
+  font-variant-numeric: tabular-nums;
 }
 
 /* ===== Viewer Top Bar ===== */
@@ -516,6 +517,10 @@ body {
   opacity: 0.85;
 }
 
+.timer-inline.expired .timer-inline-value {
+  color: #e74c3c;
+}
+
 /* Timer chip visuals */
 .timer-chip {
   background: rgba(18, 0, 36, 0.7);
@@ -700,6 +705,7 @@ body {
 .download-btn-large {
   font-size: 18px;
   font-weight: 800;
+  white-space: nowrap;
 }
 
 /* ==========================================
@@ -1170,10 +1176,6 @@ body {
   }
 
   .header-actions {
-    gap: 12px;
-  }
-
-  .header-buttons {
     gap: 8px;
   }
 
@@ -1188,11 +1190,6 @@ body {
   .header-btn svg {
     width: 16px;
     height: 16px;
-  }
-
-  .header-countdown .timer-chip {
-    padding: 6px 12px;
-    font-size: 11px;
   }
 
   .document-viewer {
@@ -1334,18 +1331,16 @@ body {
 
   .header-actions {
     width: 100%;
-    gap: 12px;
-  }
-
-  .header-buttons {
-    flex-wrap: wrap;
-    gap: 8px;
     justify-content: center;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 10px;
+    flex-wrap: wrap;
   }
 
   .header-btn {
-    flex: 1 1 calc(50% - 8px);
-    max-width: calc(50% - 8px);
+    flex: 1 1 calc(50% - 10px);
+    max-width: calc(50% - 10px);
     min-height: 48px;
     padding: 10px 16px;
     font-size: 11px;
@@ -1363,17 +1358,6 @@ body {
 
   .header-btn-appstore .download-btn-large {
     font-size: 14px;
-  }
-
-  .header-countdown {
-    justify-content: center;
-  }
-
-  .header-countdown .timer-chip {
-    width: 100%;
-    justify-content: center;
-    font-size: 11px;
-    padding: 6px 10px;
   }
 
   .document-viewer {

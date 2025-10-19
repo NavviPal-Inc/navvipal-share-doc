@@ -129,10 +129,17 @@ const CountdownTimer = ({ expiryDate, variant = 'card' }) => {
   if (variant === 'chip') {
     return (
       <span className="meta-chip timer-chip" role="listitem" aria-label="Expires In">
-        <TimerChipIcon />
         <span className={`timer-compact ${isExpired ? 'expired' : ''}`}>
           {getDisplayTime()}
         </span>
+      </span>
+    );
+  }
+
+  if (variant === 'button') {
+    return (
+      <span className={`timer-inline ${isExpired ? 'expired' : ''}`}>
+        <span className="timer-inline-value">{getDisplayTime()}</span>
       </span>
     );
   }
