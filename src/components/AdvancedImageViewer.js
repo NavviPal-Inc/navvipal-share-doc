@@ -9,7 +9,6 @@ const AdvancedImageViewer = React.forwardRef(({ src, alt = "Document", noDownloa
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   
-  const containerRef = useRef(null);
   const imageRef = useRef(null);
   const hasExternalRef = ref != null;
 
@@ -19,21 +18,9 @@ const AdvancedImageViewer = React.forwardRef(({ src, alt = "Document", noDownloa
 
   // Reset to fit screen
   const resetView = useCallback(() => {
-    if (!imageRef.current || !containerRef.current) return;
-    
-    const container = containerRef.current;
-    const image = imageRef.current;
-    
-    const containerWidth = container.clientWidth;
-    const containerHeight = container.clientHeight;
-    const imageWidth = image.naturalWidth;
-    const imageHeight = image.naturalHeight;
-    
-    const scaleX = containerWidth / imageWidth;
-    const scaleY = containerHeight / imageHeight;
-    const newScale = Math.min(scaleX, scaleY, 1);
-    
-    setScale(newScale);
+    if (!imageRef.current) return;
+
+    setScale(1);
     setPosition({ x: 0, y: 0 });
     setRotation(0);
   }, []);
@@ -201,10 +188,27 @@ const AdvancedImageViewer = React.forwardRef(({ src, alt = "Document", noDownloa
         </div>
       )}
 
-      {/* Image Container */}
-      <div 
-        ref={containerRef}
-        className="image-container"
+      {!imageLoaded && (
+        <div className="image-loading">
+          <div className="spinner"></div>
+          <p>Loading image...</p>
+        </div>
+      )}
+
+      <img
+        ref={imageRef}
+        src={src}
+        alt={alt}
+        className="viewer-image"
+        style={{
+          cursor: isDragging ? 'grabbing' : 'grab',
+          transform: `translate(${position.x}px, ${position.y}px) scale(${scale}) rotate(${rotation}deg)`,
+          opacity: imageLoaded ? 1 : 0
+        }}
+        onLoad={handleImageLoad}
+        onError={handleImageError}
+        onContextMenu={noDownload ? (e) => e.preventDefault() : undefined}
+        draggable={false}
         onWheel={handleWheel}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
@@ -213,35 +217,8 @@ const AdvancedImageViewer = React.forwardRef(({ src, alt = "Document", noDownloa
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
-        style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
-      >
-        {!imageLoaded && (
-          <div className="image-loading">
-            <div className="spinner"></div>
-            <p>Loading image...</p>
-          </div>
-        )}
-        
-        <img
-          ref={imageRef}
-          src={src}
-          alt={alt}
-          className="viewer-image"
-          style={{
-            transform: `translate(${position.x}px, ${position.y}px) scale(${scale}) rotate(${rotation}deg)`,
-            opacity: imageLoaded ? 1 : 0
-          }}
-          onLoad={handleImageLoad}
-          onError={handleImageError}
-          onContextMenu={noDownload ? (e) => e.preventDefault() : undefined}
-          draggable={false}
-        />
-      </div>
+      />
 
-      {/* Instructions */}
-      <div className="viewer-instructions">
-        <p>🖱️ Drag to pan • 🔍 Scroll to zoom • ⟳ Rotate 90° • ⌨️ Ctrl+0 to fit • Ctrl+/- to zoom</p>
-      </div>
     </div>
   );
 });
