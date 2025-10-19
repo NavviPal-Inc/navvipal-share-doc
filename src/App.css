@@ -1447,12 +1447,12 @@ body {
 /* --- PDF continuous scroll (NavviPal) --- */
 .pdf-scroll {
   overflow: visible;
-  padding: 16px 0;
+  padding: 0px 0;
   scroll-behavior: smooth;
 }
 
 .pdf-page-wrap {
-  margin: 0 auto 24px;
+  margin: 0 auto 10px;
   padding: 0px;
   background: rgba(8, 0, 18, 0.92);
   border: 1px solid rgba(160, 0, 255, 0.25);
