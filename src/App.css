@@ -157,7 +157,7 @@ body {
   text-transform: none;
   letter-spacing: normal;
   font-weight: 800;
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .header-btn .timer-inline .timer-inline-value {
@@ -1188,8 +1188,8 @@ body {
   }
 
   .header-btn svg {
-    width: 16px;
-    height: 16px;
+    width: 22px;
+    height: 22px;
   }
 
   .document-viewer {
