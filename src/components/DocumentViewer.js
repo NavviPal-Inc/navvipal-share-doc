@@ -330,7 +330,7 @@ const DocumentViewer = ({ documentData, s3Url }) => {
   const activeViewerRef = isZoomable ? (fileType === 'pdf' ? pdfApiRef : imageApiRef) : null;
   const hasViewerApi = Boolean(activeViewerRef?.current);
   const zoomLabel = isZoomable ? (fileType === 'pdf' ? pdfZoomLabel : imageZoomLabel) : '—';
-  const zoomButtonsDisabled = !hasViewerApi || loading;
+  const viewerButtonsDisabled = !hasViewerApi || loading;
 
   const handleFullscreenToggle = () => {
     if (typeof document === 'undefined') {
@@ -354,6 +354,17 @@ const DocumentViewer = ({ documentData, s3Url }) => {
         </div>
 
         <div className="viewer-topbar-right">
+          {fileType === 'image' && (
+            <button
+              className="viewer-topbar-btn"
+              aria-label="Rotate Clockwise"
+              onClick={() => imageApiRef.current?.rotateClockwise?.()}
+              title="Rotate 90° clockwise"
+              disabled={viewerButtonsDisabled}
+            >
+              ⟳
+            </button>
+          )}
           <button
             className="viewer-topbar-btn"
             aria-label="Zoom Out"
@@ -365,7 +376,7 @@ const DocumentViewer = ({ documentData, s3Url }) => {
               }
             }}
             title="Zoom Out"
-            disabled={zoomButtonsDisabled}
+            disabled={viewerButtonsDisabled}
           >
             −
           </button>
@@ -383,7 +394,7 @@ const DocumentViewer = ({ documentData, s3Url }) => {
               }
             }}
             title="Zoom In"
-            disabled={zoomButtonsDisabled}
+            disabled={viewerButtonsDisabled}
           >
             +
           </button>
@@ -398,7 +409,7 @@ const DocumentViewer = ({ documentData, s3Url }) => {
               }
             }}
             title="Fit to Window"
-            disabled={zoomButtonsDisabled}
+            disabled={viewerButtonsDisabled}
           >
             Fit
           </button>

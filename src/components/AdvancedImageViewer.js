@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect, useCallback, useImperativeHandle } 
 const AdvancedImageViewer = React.forwardRef(({ src, alt = "Document", noDownload = false, onZoomChange }, ref) => {
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [rotation, setRotation] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -34,6 +35,7 @@ const AdvancedImageViewer = React.forwardRef(({ src, alt = "Document", noDownloa
     
     setScale(newScale);
     setPosition({ x: 0, y: 0 });
+    setRotation(0);
   }, []);
 
   // Zoom functions
@@ -148,12 +150,18 @@ const AdvancedImageViewer = React.forwardRef(({ src, alt = "Document", noDownloa
 
   const getZoomLabel = useCallback(() => `${Math.round(scale * 100)}%`, [scale]);
 
+  const rotateClockwise = useCallback(() => {
+    setRotation(prev => (prev + 90) % 360);
+    setPosition({ x: 0, y: 0 });
+  }, []);
+
   useImperativeHandle(ref, () => ({
     zoomIn,
     zoomOut,
     resetView,
-    getZoomLabel
-  }), [zoomIn, zoomOut, resetView, getZoomLabel]);
+    getZoomLabel,
+    rotateClockwise
+  }), [zoomIn, zoomOut, resetView, getZoomLabel, rotateClockwise]);
 
   useEffect(() => {
     if (typeof onZoomChange === 'function') {
@@ -177,6 +185,9 @@ const AdvancedImageViewer = React.forwardRef(({ src, alt = "Document", noDownloa
       {/* Controls */}
       {!hasExternalRef && (
         <div className="viewer-controls">
+          <button onClick={rotateClockwise} title="Rotate Clockwise 90°">
+            <span>⟳</span>
+          </button>
           <button onClick={zoomOut} disabled={scale <= minScale} title="Zoom Out (Ctrl + -)">
             <span>−</span>
           </button>
@@ -217,7 +228,7 @@ const AdvancedImageViewer = React.forwardRef(({ src, alt = "Document", noDownloa
           alt={alt}
           className="viewer-image"
           style={{
-            transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+            transform: `translate(${position.x}px, ${position.y}px) scale(${scale}) rotate(${rotation}deg)`,
             opacity: imageLoaded ? 1 : 0
           }}
           onLoad={handleImageLoad}
@@ -229,7 +240,7 @@ const AdvancedImageViewer = React.forwardRef(({ src, alt = "Document", noDownloa
 
       {/* Instructions */}
       <div className="viewer-instructions">
-        <p>🖱️ Drag to pan • 🔍 Scroll to zoom • ⌨️ Ctrl+0 to fit • Ctrl+/- to zoom</p>
+        <p>🖱️ Drag to pan • 🔍 Scroll to zoom • ⟳ Rotate 90° • ⌨️ Ctrl+0 to fit • Ctrl+/- to zoom</p>
       </div>
     </div>
   );
