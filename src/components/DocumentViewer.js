@@ -5,7 +5,6 @@ import Papa from 'papaparse';
 import AdvancedPDFViewer from './AdvancedPDFViewer';
 import AdvancedImageViewer from './AdvancedImageViewer';
 import DocumentMetadata from './DocumentMetadata';
-import CountdownTimer from './CountdownTimer';
 import apiService from '../services/api';
 
 // Set up PDF.js worker
@@ -351,12 +350,6 @@ const DocumentViewer = ({ documentData, s3Url }) => {
         <div className="viewer-topbar-left">
           {documentData && (
             <DocumentMetadata documentData={documentData} compact />
-          )}
-        </div>
-
-        <div className="viewer-topbar-center">
-          {documentData?.expiry_date && (
-            <CountdownTimer expiryDate={documentData.expiry_date} variant="chip" />
           )}
         </div>
 
