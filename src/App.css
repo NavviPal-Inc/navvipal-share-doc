@@ -283,7 +283,7 @@ body {
   width: 100%;
   max-width: 1040px;
   margin: 16px auto 48px;
-  padding: 64px 56px 56px;
+  padding: 32px 42px 42px;
   background: radial-gradient(120% 120% at 50% 0%, rgba(146, 0, 255, 0.28) 0%, rgba(26, 0, 46, 0.88) 48%, rgba(8, 0, 16, 0.94) 100%);
   border-radius: 36px;
   overflow: visible;
@@ -1362,8 +1362,8 @@ body {
   }
 
   .document-viewer {
-    margin: 40px auto 28px;
-    padding: 36px 22px 28px;
+    margin: 14px auto 28px;
+    padding: 14px 22px 28px;
     gap: 4px;
   }
 
