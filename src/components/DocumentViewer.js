@@ -345,7 +345,7 @@ const DocumentViewer = ({ documentData, s3Url }) => {
   };
 
   return (
-    <>
+    <div className="document-viewer">
       <section className="viewer-topbar">
         <div className="viewer-topbar-left">
           {documentData && (
@@ -398,28 +398,26 @@ const DocumentViewer = ({ documentData, s3Url }) => {
         </div>
       </section>
 
-      <div className="document-viewer">
-        <section className="document-content">
-          <div className={`document-body ${noScreenshots ? 'no-screenshots' : ''}`}>
-            {noScreenshots && !contentVisible ? (
-              <div className="screenshot-protection-overlay">
-                <div className="protection-message">
-                  <h2>🔒 Screenshot Protection Active</h2>
-                  <p>Content temporarily hidden</p>
-                </div>
+      <section className="document-content">
+        <div className={`document-body ${noScreenshots ? 'no-screenshots' : ''}`}>
+          {noScreenshots && !contentVisible ? (
+            <div className="screenshot-protection-overlay">
+              <div className="protection-message">
+                <h2>🔒 Screenshot Protection Active</h2>
+                <p>Content temporarily hidden</p>
               </div>
-            ) : (
-              <>
-                {renderContent()}
-                {documentData.watermark && (
-                  <div className="watermark">NAVVIPAL</div>
-                )}
-              </>
-            )}
-          </div>
-        </section>
-      </div>
-    </>
+            </div>
+          ) : (
+            <>
+              {renderContent()}
+              {documentData.watermark && (
+                <div className="watermark">NAVVIPAL</div>
+              )}
+            </>
+          )}
+        </div>
+      </section>
+    </div>
   );
 };
 

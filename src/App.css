@@ -208,22 +208,23 @@ body {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .viewer-topbar-btn {
-  min-width: 44px;
-  min-height: 44px;
+  min-width: 36px;
+  min-height: 36px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 12px;
-  border-radius: 10px;
+  padding: 6px 10px;
+  border-radius: 8px;
   background: rgba(160, 0, 255, 0.18);
   border: 1px solid rgba(160, 0, 255, 0.38);
   color: #fff;
   font-weight: 800;
-  font-size: 14px;
+  font-size: 18px;
+  line-height: 1;
   cursor: pointer;
   transition: transform 0.2s ease, background 0.2s ease;
 }
@@ -281,7 +282,7 @@ body {
 .document-viewer {
   width: 100%;
   max-width: 1040px;
-  margin: 32px auto 48px;
+  margin: 16px auto 48px;
   padding: 64px 56px 56px;
   background: radial-gradient(120% 120% at 50% 0%, rgba(146, 0, 255, 0.28) 0%, rgba(26, 0, 46, 0.88) 48%, rgba(8, 0, 16, 0.94) 100%);
   border-radius: 36px;
@@ -291,7 +292,7 @@ body {
   box-shadow: 0 40px 120px rgba(160, 0, 255, 0.25);
   display: flex;
   flex-direction: column;
-  gap: 48px;
+  gap: 4px;
   backdrop-filter: blur(30px);
 }
 
@@ -1195,7 +1196,7 @@ body {
   .document-viewer {
     margin: 48px auto 32px;
     padding: 48px 28px 36px;
-    gap: 32px;
+    gap: 4px;
   }
 
   .document-metadata {
@@ -1363,7 +1364,7 @@ body {
   .document-viewer {
     margin: 40px auto 28px;
     padding: 36px 22px 28px;
-    gap: 28px;
+    gap: 4px;
   }
 
   .document-metadata {
