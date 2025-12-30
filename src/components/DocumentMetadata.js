@@ -19,7 +19,7 @@ const DocumentMetadata = ({ documentData, children, compact = false }) => {
   const content = (
     <div className="metadata-header-row">
       <h1 className="document-title">
-        {cleanDocumentTitle(documentData.document_name || documentData.s3_url)}
+        {documentData.title || cleanDocumentTitle(documentData.document_name || documentData.s3_url)}
       </h1>
 
       {children}
