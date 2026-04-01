@@ -4,7 +4,7 @@ const configuredBase = (process.env.REACT_APP_API_BASE_URL || '').trim();
 const API_BASE_URL =
   configuredBase && configuredBase !== 'null' && configuredBase !== 'undefined'
     ? configuredBase
-    : '/api';
+    : 'https://doc-service.navvipal.com/api/v1';
 
 class ApiService {
   constructor() {
@@ -17,7 +17,7 @@ class ApiService {
     }
 
     try {
-      const response = await axios.get(`${API_BASE_URL}/documents/shared`, {
+      const response = await axios.get(`${API_BASE_URL}/sharing/viewer-data`, {
         params: { share_id: shareId },
         timeout: 10000
       });
