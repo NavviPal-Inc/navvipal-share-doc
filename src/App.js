@@ -13,16 +13,20 @@ function App() {
   const [isExpired, setIsExpired] = useState(false);
   const [isHeaderHidden, setIsHeaderHidden] = useState(false);
 
-  // Extract share_id from URL query parameters
+  // Extract share_id from URL query parameters or path
   const getShareId = () => {
+    // Try query string first: ?share_id=xxx
     const urlParams = new URLSearchParams(window.location.search);
-    const shareIdFromUrl = urlParams.get('share_id');
+    const shareIdFromQuery = urlParams.get('share_id');
+    if (shareIdFromQuery) return shareIdFromQuery;
 
-    if (!shareIdFromUrl) {
-      throw new Error('This secure document link is missing a reference. Please open the exact link provided in your NavviPal email.');
-    }
+    // Try path: /doc/{uuid}
+    const pathMatch = window.location.pathname.match(
+      /\/doc\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i,
+    );
+    if (pathMatch) return pathMatch[1];
 
-    return shareIdFromUrl;
+    throw new Error('This secure document link is missing a reference. Please open the exact link provided in your NavviPal email.');
   };
 
   // Check if document has expired
